@@ -5,109 +5,97 @@
  * @format
  * @flow strict-local
  */
-
 import React from 'react';
 import {
   SafeAreaView,
-  StyleSheet,
-  ScrollView,
   View,
+  FlatList,
+  StyleSheet,
   Text,
   StatusBar,
+  TouchableOpacity,
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {useDispatch, useSelector} from 'react-redux';
+import {getJobs} from './store/actions/job.action';
+import Icon from 'react-native-vector-icons/AntDesign';
+import {Navigation} from 'react-native-navigation';
+
+const Item = (props) => {
+  const {item} = props;
+
+  const isOpen = () => {
+    return item.grantedAccess ? 'open' : 'closed';
+  };
+
+  return (
+    <View style={styles.item}>
+      <View>
+        <Text style={styles.jobNumber}>Job #{item.id}</Text>
+        <Text
+          style={
+            styles.projectName
+          }>{`${item.projectExternalJobNumber}-${item.projectName}`}</Text>
+        <Text style={styles.payloadName}>{item.payloadName}</Text>
+      </View>
+      <View>
+        <Text style={styles.startDate}>{item.startDate}</Text>
+        <Text style={styles.startDate}>{isOpen()}</Text>
+        <Text style={styles.unitPrice}>{item.unitPrice}/TON</Text>
+        <TouchableOpacity style={styles.TicketButton}>
+          <Text style={styles.closedTicketsCount}>
+            {item.closedTicketsCount}
+          </Text>
+          <Icon name="checksquare" size={20} color="#000" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 const App = () => {
+  const dispatch = useDispatch();
+
+  const jobs = useSelector((state) => state.JobReducer.jobs);
+
+  React.useEffect(() => {
+    dispatch(getJobs());
+  }, []);
+
+  const renderItem = (props) => <Item {...props} />;
+
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={jobs}
+        renderItem={renderItem}
+        keyExtractor={(item) => `${item.id}`}
+      />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    marginTop: StatusBar.currentHeight || 0,
+    paddingHorizontal: 20
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  item: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    padding: 10
   },
-  body: {
-    backgroundColor: Colors.white,
+  TicketButton: {
+    flexDirection: 'row',
   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  title: {
+    fontSize: 32,
   },
 });
 
