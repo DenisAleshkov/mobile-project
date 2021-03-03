@@ -1,4 +1,4 @@
-package com.rnproject;
+package com.mobile;
 
 import com.reactnativenavigation.NavigationActivity;
 

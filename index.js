@@ -1,11 +1,11 @@
+import React from 'react';
 import {Navigation} from 'react-native-navigation';
 import {Provider} from 'react-redux';
 import store from './store/store';
 import App from './App';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-
 
 Navigation.registerComponentWithRedux('HomeScreen', () => App, Provider, store);
+
 Navigation.events().registerAppLaunchedListener(() => {
   Navigation.setRoot({
     root: {
@@ -22,9 +22,9 @@ Navigation.events().registerAppLaunchedListener(() => {
                     name: 'HomeScreen',
                     options: {
                       bottomTab: {
-                        text: "MyJobs",
-                      }
-                    }
+                        text: 'MyJobs',
+                      },
+                    },
                   },
                 },
               ],
