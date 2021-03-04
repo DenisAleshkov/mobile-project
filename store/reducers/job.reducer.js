@@ -1,8 +1,9 @@
-import {SET_JOBS, LOAD_JOBS} from './../constants';
+import {SET_JOBS, LOAD_JOBS, REQUEST_ERROR} from './../constants';
 
 const initialState = {
   jobs: [],
   page: 1,
+  error: '',
 };
 
 const JobReducer = (state = initialState, action) => {
@@ -19,6 +20,12 @@ const JobReducer = (state = initialState, action) => {
         ...state,
         page: action.payload.page,
         jobs: [...state.jobs, ...action.payload.jobs],
+      };
+    }
+    case REQUEST_ERROR: {
+      return {
+        ...state,
+        error: action.payload.error,
       };
     }
     default:

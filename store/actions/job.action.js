@@ -1,11 +1,12 @@
 import axios from 'axios';
 import {JOB} from '../api';
-import {SET_JOBS, LOAD_JOBS, GLOBALS} from './../constants';
+import {SET_JOBS, LOAD_JOBS, GLOBALS, REQUEST_ERROR} from './../constants';
 import {setLoading} from './loading.action';
 import store from './../store';
 
 export const setJobs = (payload) => ({type: SET_JOBS, payload});
 export const loadJobs = (payload) => ({type: LOAD_JOBS, payload});
+export const setError = (payload) => ({type: REQUEST_ERROR, payload});
 
 export const getJobs = (page) => (dispatch) => {
   dispatch(setLoading(true));
@@ -25,7 +26,7 @@ export const getJobs = (page) => (dispatch) => {
       }
     })
     .catch((error) => {
-      console.log('error', error);
+      dispatch(setError({error: 'something wrong'}));
       dispatch(setLoading(false));
     });
 };
