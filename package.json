@@ -1,5 +1,5 @@
 {
-  "name": "RNproject",
+  "name": "project",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -13,7 +13,8 @@
     "axios": "^0.21.1",
     "react": "16.13.1",
     "react-native": "0.63.4",
-    "react-native-navigation": "^7.11.1",
+    "react-native-navigation": "^7.11.2",
+    "react-native-vector-icons": "^8.1.0",
     "react-redux": "^7.2.2",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0"
