@@ -1,0 +1,154 @@
+import React from 'react';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Buttons from '../../Buttons';
+import CheckBox from '../../CheckBox';
+import {
+  StyleSheet,
+  Modal,
+  TouchableOpacity,
+  TextInput,
+  Text,
+  View,
+  FlatList,
+} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {setTrucks} from './../../../../../../store/actions/project.action';
+
+const Item = (props) => {
+  const {item} = props;
+  return (
+    <View style={styles.item}>
+      <CheckBox
+        checked={props.checked}
+        currentId={props.currentId}
+        handleChecked={props.handleChecked}
+      />
+      <View style={styles.textInfo}>
+        <Text style={{fontSize: 20}}>{item.companyName}</Text>
+        <Text style={{fontSize: 10}}>{item.projectName}</Text>
+      </View>
+    </View>
+  );
+};
+
+const MyTrucksModal = ({modalVisible, handleClose, data}) => {
+  const [checked, setChecked] = React.useState([]);
+
+  const dispatch = useDispatch();
+
+  const handleChecked = (item) => {
+    const isCheck = checked.filter((check) => check.id === item.id).length;
+    if (!isCheck) {
+      setChecked([...checked, {id: item.id, projectName: item.projectName}]);
+    } else {
+      const newList = checked.filter((check) => check.id !== item.id);
+      setChecked(newList);
+    }
+  };
+
+  const onSubmit = () => {
+    dispatch(setTrucks(checked));
+    handleClose()
+  };
+
+  const renderItem = (props) => {
+    return (
+      <Item
+        {...props}
+        checked={checked}
+        currentId={props.item.id}
+        handleChecked={() => handleChecked(props.item)}
+      />
+    );
+  };
+
+  return (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={handleClose}>
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <Text>Trucks from Fleet</Text>
+          <View style={styles.searchContainer}>
+            <TextInput placeholder="Select Pick-Up Site" />
+            <Icon name="magnify" size={25} color="#000" />
+          </View>
+          <View style={styles.changeAllItems}>
+            <CheckBox />
+            <View style={styles.textInfo}>
+              <Text style={{fontSize: 20}}>Use All My Trucks</Text>
+            </View>
+          </View>
+          <FlatList
+            data={data}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+          />
+          <Buttons
+            backName="clear"
+            nextName="done"
+            onBack={handleClose}
+            onSubmit={onSubmit}
+          />
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    marginVertical: Platform.OS === 'ios' ? 250 : 200,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    paddingVertical: Platform.OS === 'ios' ? 15 : 5,
+    paddingHorizontal: Platform.OS === 'ios' ? 15 : 15,
+    alignItems: 'center',
+    borderRadius: 3,
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#000',
+    backgroundColor: '#88888824',
+  },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#000',
+    marginVertical: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  changeAllItems: {
+    flexDirection: 'row',
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderColor: '#000',
+  },
+  textInfo: {
+    marginLeft: 15,
+  },
+});
+
+export default MyTrucksModal;

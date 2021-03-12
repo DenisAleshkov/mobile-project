@@ -25,7 +25,7 @@ const Item = (props) => {
         <Text style={styles.unitPrice}>
           <Text style={styles.greenText}>${item.unitPrice}</Text> / TON
         </Text>
-        <TouchableOpacity style={styles.TicketButton}>
+        <TouchableOpacity style={styles.ticketButton}>
           <Text style={styles.closedTicketsCount}>
             {item.closedTicketsCount || 0}
           </Text>
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 10,
   },
-  TicketButton: {
+  ticketButton: {
     flexDirection: 'row',
     alignItems: 'center',
   },

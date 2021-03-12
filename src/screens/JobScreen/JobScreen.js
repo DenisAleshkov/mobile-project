@@ -68,11 +68,7 @@ const JobScreen = (props) => {
       <Header />
       <FlatList
         data={jobs}
-        style={{
-          backgroundColor: '#dbd6dc',
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-        }}
+        style={styles.list}
         refreshing={refreshing}
         renderItem={renderItem}
         keyExtractor={(item) => `${item.id}`}
@@ -96,12 +92,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#312f2f',
   },
+  list: {
+    backgroundColor: '#dbd6dc',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
 });
 
 JobScreen.options = {
   bottomTab: {
-    text: 'My Jobs'
-  }
+    text: 'My Jobs',
+  },
 };
 
 export default JobScreen;

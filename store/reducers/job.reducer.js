@@ -1,3 +1,4 @@
+import update from 'immutability-helper';
 import {SET_JOBS, LOAD_JOBS, REQUEST_ERROR} from './../constants';
 
 const initialState = {
@@ -8,13 +9,11 @@ const initialState = {
 
 const JobReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_JOBS: {
-      return {
-        ...state,
-        page: action.payload.page,
-        jobs: action.payload.jobs,
-      };
-    }
+    case SET_JOBS:
+      return update(state, {
+        jobs: {$set: action.payload.jobs},
+        page: {$set: action.payload.page},
+      });
     case LOAD_JOBS: {
       return {
         ...state,
@@ -22,12 +21,10 @@ const JobReducer = (state = initialState, action) => {
         jobs: [...state.jobs, ...action.payload.jobs],
       };
     }
-    case REQUEST_ERROR: {
-      return {
-        ...state,
-        error: action.payload.error,
-      };
-    }
+    case REQUEST_ERROR:
+      return update(state, {
+        error: {$set: action.payload.error},
+      });
     default:
       return state;
   }
