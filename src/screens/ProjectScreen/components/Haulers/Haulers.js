@@ -2,23 +2,13 @@ import React, {useState} from 'react';
 import Buttons from '../Buttons';
 import Stepper from '../Stepper';
 import CheckBox from '../CheckBox';
-import MyTrucksModal from './components/MyTrucksModal';
-import {
-  Alert,
-  Modal,
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-} from 'react-native';
+import HaulersModal from './components/HaulersModal';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {setTrucks} from '../../../../../store/actions/project.action';
+import {setHaulers} from '../../../../../store/actions/project.action';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const MyTrucks = () => {
+const Haulers = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const labelStyle = (value) => ({
@@ -33,28 +23,28 @@ const MyTrucks = () => {
 
   const dispatch = useDispatch();
 
-  const jobs = useSelector((state) => state.JobReducer.jobs);
-
-  const trucks = useSelector((state) => state.ProjectReducer.trucks);
+  const haulers = useSelector((state) => state.ProjectReducer.haulers);
 
   const deleteItem = (currentId) => {
-    const newTrucks = trucks.filter((truck) => truck.id !== currentId);
-    if (newTrucks.length === 0) {
-      dispatch(setTrucks(null));
+    const newHaulers = haulers.filter((hauler) => hauler.id !== currentId);
+    if (newHaulers.length === 0) {
+      dispatch(setHaulers(null));
     } else {
-      dispatch(setTrucks(newTrucks));
+      dispatch(setHaulers(newHaulers));
     }
   };
 
   const renderTrucks = () =>
-    trucks &&
-    trucks.map((item) => (
+    haulers &&
+    haulers.map((item) => (
       <View style={styles.choosedItem} key={item.id}>
-        <Text style={styles.choosedItemName}>{item.projectName}</Text>
+        <Text style={styles.choosedItemName}>
+          {item.data.dropOffSites} - {item.data.count} Req.
+        </Text>
         <TouchableOpacity
           style={styles.choosedItemcons}
           onPress={() => deleteItem(item.id)}>
-          <Icon name="close-thick" color="#5f5b57" size={20} />
+          <Icon name="close" color="#5f5b57" size={20} />
         </TouchableOpacity>
       </View>
     ));
@@ -62,26 +52,25 @@ const MyTrucks = () => {
   return (
     <View style={styles.container}>
       <Stepper />
-      <MyTrucksModal
-        data={jobs}
+      <HaulersModal
         modalVisible={modalVisible}
         handleClose={() => setModalVisible(!modalVisible)}
       />
       <View style={styles.inner}>
-        <Text style={styles.header}>Trucks Assigned</Text>
+        <Text style={styles.header}>Select Haulers (Optional)</Text>
         <View style={styles.action}>
-          <View style={styles.inputContainer}>
-            <Text style={labelStyle(trucks)}>Trucks From Fleet</Text>
-            <View style={styles.chosedItems}>{renderTrucks()}</View>
-          </View>
           <TouchableOpacity
-            style={styles.openModal}
+            style={styles.inputContainer}
             onPress={() => setModalVisible(true)}>
-            <Text style={styles.textStyle}>View All</Text>
+            <Text style={labelStyle(haulers)}>Select Haulers</Text>
+            <View style={styles.chosedItems}>{renderTrucks()}</View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.inputContainer} onPress={() => {}}>
+            <Text>Job Notes - Optional</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
-          <Buttons nextName="next" backName="back" />
+          <Buttons hasBackIcon={true} nextName="done" backName="back" />
         </View>
       </View>
     </View>
@@ -132,16 +121,19 @@ const styles = StyleSheet.create({
   },
   choosedItem: {
     flexDirection: 'row',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 18,
     backgroundColor: '#e4ad71',
     top: 15,
     margin: 3,
+    maxWidth: 280
   },
   choosedItemName: {
     marginRight: 15,
   },
 });
 
-export default MyTrucks;
+export default Haulers;

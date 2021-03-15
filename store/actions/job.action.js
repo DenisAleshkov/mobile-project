@@ -8,10 +8,10 @@ export const setJobs = (payload) => ({type: SET_JOBS, payload});
 export const loadJobs = (payload) => ({type: LOAD_JOBS, payload});
 export const setError = (payload) => ({type: REQUEST_ERROR, payload});
 
-export const getJobs = (page) => (dispatch) => {
+export const getJobs = (page) => (dispatch, getState) => {
   dispatch(setLoading(true));
   axios
-    .get(JOB.GET_JOBS(page), {
+    .get(JOB.GET_JOBS(page + 1), {
       headers: {
         Authorization: `Token ${GLOBALS.AUTH_TOKEN}`,
       },
@@ -26,7 +26,7 @@ export const getJobs = (page) => (dispatch) => {
       }
     })
     .catch((error) => {
-      dispatch(setError({error: 'something wrong'}));
+      dispatch(setError({error: error.response.status}));
       dispatch(setLoading(false));
     });
 };

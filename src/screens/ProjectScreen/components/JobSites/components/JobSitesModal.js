@@ -39,6 +39,8 @@ const JobSitesModal = ({
 }) => {
   const [radioSelected, setRadioSelected] = React.useState(null);
 
+  const error = useSelector(state => state.JobReducer.error)
+
   React.useEffect(() => {
     data[0] && setRadioSelected({[field]: data[0][`${field}`], id: data[0].id});
   }, [data]);
@@ -75,18 +77,21 @@ const JobSitesModal = ({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <TouchableOpacity style={styles.closeBtn} onPress={onExit}>
-            <Icon name="close-thick" size={25} />
+            <Icon name="close" size={25} />
           </TouchableOpacity>
           <View style={styles.searchContainer}>
             <TextInput placeholder="Select Pick-Up Site" />
             <Icon name="magnify" size={25} color="#000" />
           </View>
-          <FlatList
+         {
+           error ? <Text style={styles.errorContainer}>{error}</Text> :
+           <FlatList
             data={data}
             renderItem={renderItem}
             keyExtractor={(item) => item.id.toString()}
             style={styles.modalList}
           />
+         } 
           <Buttons
             backName="cancel"
             nextName="continue"
@@ -139,8 +144,10 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     backgroundColor: '#88888824',
   },
+  errorContainer: {
+    paddingVertical: 30,
+  },
   closeBtn: {
-    width: '100%',
     alignItems: 'flex-end',
     marginBottom: 10,
   },

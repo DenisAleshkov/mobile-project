@@ -13,11 +13,13 @@ const JobReducer = (state = initialState, action) => {
       return update(state, {
         jobs: {$set: action.payload.jobs},
         page: {$set: action.payload.page},
+        perPage: {$set: action.payload.perPage},
       });
     case LOAD_JOBS: {
       return {
         ...state,
         page: action.payload.page,
+        perPage: action.payload.perPage,
         jobs: [...state.jobs, ...action.payload.jobs],
       };
     }

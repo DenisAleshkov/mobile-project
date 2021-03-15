@@ -4,13 +4,16 @@ export const GLOBALS = {
 };
 
 export const SET_JOBS = 'SET_JOBS';
+
 export const SET_LOADING = 'SET_LOADING';
+export const SET_REFRESHING = "SET_REFRESHING"
 export const REQUEST_ERROR = 'REQUEST_ERROR';
 
 export const SET_PICKUP_SITES = 'SET_PICKUP_SITES';
 export const SET_DROPOF_SITES = 'SET_DROPOF_SITES';
 export const SET_JOB_DETAILS = 'SET_JOB_DETAILS';
 export const SET_TRUCKS = 'SET_TRUCKS';
+export const SET_HAULERS = 'SET_HAULERS';
 
 export const SET_STEP = 'SET_STEP';
 

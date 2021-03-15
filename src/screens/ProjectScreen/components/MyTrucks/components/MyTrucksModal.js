@@ -11,7 +11,7 @@ import {
   View,
   FlatList,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {setTrucks} from './../../../../../../store/actions/project.action';
 
 const Item = (props) => {
@@ -33,7 +33,7 @@ const Item = (props) => {
 
 const MyTrucksModal = ({modalVisible, handleClose, data}) => {
   const [checked, setChecked] = React.useState([]);
-
+  const [checkedAll, setCheckedAll] = React.useState(false)
   const dispatch = useDispatch();
 
   const handleChecked = (item) => {
@@ -41,15 +41,25 @@ const MyTrucksModal = ({modalVisible, handleClose, data}) => {
     if (!isCheck) {
       setChecked([...checked, {id: item.id, projectName: item.projectName}]);
     } else {
-      const newList = checked.filter((check) => check.id !== item.id);
-      setChecked(newList);
+      const newTrucks = checked.filter((check) => check.id !== item.id);
+      setChecked(newTrucks);
     }
   };
 
   const onSubmit = () => {
     dispatch(setTrucks(checked));
-    handleClose()
+    handleClose();
   };
+
+  const onClear = () => {
+    dispatch(setTrucks(null));
+    handleClose();
+  };
+
+  const chooseAll = () => {
+    setChecked(data)
+    setCheckedAll(!checkedAll)
+  }
 
   const renderItem = (props) => {
     return (
@@ -76,7 +86,7 @@ const MyTrucksModal = ({modalVisible, handleClose, data}) => {
             <Icon name="magnify" size={25} color="#000" />
           </View>
           <View style={styles.changeAllItems}>
-            <CheckBox />
+            <CheckBox handleChecked={chooseAll} isCheckedAll={checkedAll} />
             <View style={styles.textInfo}>
               <Text style={{fontSize: 20}}>Use All My Trucks</Text>
             </View>
@@ -89,7 +99,7 @@ const MyTrucksModal = ({modalVisible, handleClose, data}) => {
           <Buttons
             backName="clear"
             nextName="done"
-            onBack={handleClose}
+            onBack={onClear}
             onSubmit={onSubmit}
           />
         </View>

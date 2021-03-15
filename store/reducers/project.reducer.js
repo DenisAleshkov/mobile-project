@@ -4,6 +4,7 @@ import {
   SET_DROPOF_SITES,
   SET_JOB_DETAILS,
   SET_TRUCKS,
+  SET_HAULERS,
 } from './../constants';
 
 const initialState = {
@@ -19,6 +20,7 @@ const initialState = {
   dropofSites: null,
   jobDetails: null,
   trucks: null,
+  haulers: null,
 };
 
 const StepperReducer = (state = initialState, action) => {
@@ -26,6 +28,10 @@ const StepperReducer = (state = initialState, action) => {
     case SET_JOB_DETAILS:
       return update(state, {
         jobDetails: {$set: action.payload},
+      });
+    case SET_HAULERS:
+      return update(state, {
+        haulers: {$set: action.payload},
       });
     case SET_PICKUP_SITES:
       return update(state, {

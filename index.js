@@ -4,7 +4,8 @@ import ProjectScreen from './src/screens/ProjectScreen/ProjectScreen';
 import Payload from './src/screens/ProjectScreen/components/Payload/Payload';
 import JobDetails from './src/screens/ProjectScreen/components/JobDetails/JobDetails';
 import JobSites from './src/screens/ProjectScreen/components/JobSites/JobSites';
-import MyTrucks from "./src/screens/ProjectScreen/components/MyTrucks/MyTrucks"
+import MyTrucks from './src/screens/ProjectScreen/components/MyTrucks/MyTrucks';
+import Haulers from './src/screens/ProjectScreen/components/Haulers/Haulers';
 import {Image} from 'react-native';
 import {Navigation} from 'react-native-navigation';
 import {Provider} from 'react-redux';
@@ -25,6 +26,12 @@ Navigation.registerComponentWithRedux(
   store,
 );
 
+Navigation.registerComponentWithRedux(
+  'Haulers',
+  () => Haulers,
+  Provider,
+  store,
+);
 
 Navigation.registerComponentWithRedux(
   'JobDetails',
@@ -74,6 +81,18 @@ const bottomTabs = (icons) => ({
         children: [
           {
             component: {
+              id: 'JobDetails_SCREEN',
+              name: 'JobDetails',
+            },
+            component: {
+              id: 'MyTrucks_SCREEN',
+              name: 'MyTrucks',
+            },
+            component: {
+              id: 'Haulers_SCREEN',
+              name: 'Haulers',
+            },
+            component: {
               id: 'Project_SCREEN',
               name: 'ProjectScreen',
             },
@@ -84,14 +103,6 @@ const bottomTabs = (icons) => ({
             component: {
               id: 'Payload_SCREEN',
               name: 'Payload',
-            },
-            component: {
-              id: 'JobDetails_SCREEN',
-              name: 'JobDetails',
-            },
-            component: {
-              id: 'MyTrucks_SCREEN',
-              name: 'MyTrucks',
             },
           },
         ],
