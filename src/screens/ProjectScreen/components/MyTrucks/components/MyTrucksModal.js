@@ -53,6 +53,8 @@ const MyTrucksModal = ({modalVisible, handleClose, data}) => {
 
   const onClear = () => {
     dispatch(setTrucks(null));
+    setChecked([])
+    setCheckedAll(false)
     handleClose();
   };
 

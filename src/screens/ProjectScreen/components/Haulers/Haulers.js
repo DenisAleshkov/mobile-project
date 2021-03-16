@@ -2,13 +2,15 @@ import React, {useState} from 'react';
 import Buttons from '../Buttons';
 import Stepper from '../Stepper';
 import CheckBox from '../CheckBox';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import HaulersModal from './components/HaulersModal';
+import {Navigation} from 'react-native-navigation';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {setHaulers} from '../../../../../store/actions/project.action';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {setPrevStep} from '../../../../../store/actions/stepper.action';
 
-const Haulers = () => {
+const Haulers = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const labelStyle = (value) => ({
@@ -23,7 +25,14 @@ const Haulers = () => {
 
   const dispatch = useDispatch();
 
+  const state = useSelector(state => state)
   const haulers = useSelector((state) => state.ProjectReducer.haulers);
+  const step = useSelector((state) => state.StepperReducer.step);
+
+  const setPrevPage = () => {
+    Navigation.pop(props.componentId);
+    dispatch(setPrevStep(step));
+  };
 
   const deleteItem = (currentId) => {
     const newHaulers = haulers.filter((hauler) => hauler.id !== currentId);
@@ -33,6 +42,10 @@ const Haulers = () => {
       dispatch(setHaulers(newHaulers));
     }
   };
+
+  const submit = () => {
+    console.log('state', state.ProjectReducer)
+  }
 
   const renderTrucks = () =>
     haulers &&
@@ -49,6 +62,8 @@ const Haulers = () => {
       </View>
     ));
 
+
+
   return (
     <View style={styles.container}>
       <Stepper />
@@ -57,21 +72,27 @@ const Haulers = () => {
         handleClose={() => setModalVisible(!modalVisible)}
       />
       <View style={styles.inner}>
-        <Text style={styles.header}>Select Haulers (Optional)</Text>
-        <View style={styles.action}>
-          <TouchableOpacity
-            style={styles.inputContainer}
-            onPress={() => setModalVisible(true)}>
-            <Text style={labelStyle(haulers)}>Select Haulers</Text>
-            <View style={styles.chosedItems}>{renderTrucks()}</View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.inputContainer} onPress={() => {}}>
-            <Text>Job Notes - Optional</Text>
-          </TouchableOpacity>
+        <View style={styles.actionContainer}>
+          <Text style={styles.header}>Select Haulers (Optional)</Text>
+          <View style={styles.action}>
+            <TouchableOpacity
+              style={styles.inputContainer}
+              onPress={() => setModalVisible(true)}>
+              <Text style={labelStyle(haulers)}>Select Haulers</Text>
+              <View style={styles.chosedItems}>{renderTrucks()}</View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.inputContainer} onPress={() => {}}>
+              <Text>Job Notes - Optional</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.buttonContainer}>
-          <Buttons hasBackIcon={true} nextName="done" backName="back" />
-        </View>
+        <Buttons
+          hasBackIcon={true}
+          nextName="done"
+          backName="back"
+          onBack={setPrevPage}
+          onSubmit={submit}
+        />
       </View>
     </View>
   );
@@ -91,11 +112,10 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    justifyContent: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  action: {
-    alignItems: 'flex-end',
-  },
+  actionContainer: {},
   inputContainer: {
     borderColor: '#000',
     borderWidth: 1,
@@ -105,15 +125,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
   },
+  action: {},
   textStyle: {
     color: '#b1681b',
     textDecorationLine: 'underline',
     fontWeight: '300',
     textAlign: 'center',
-  },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
   },
   chosedItems: {
     flexDirection: 'row',
@@ -121,15 +138,15 @@ const styles = StyleSheet.create({
   },
   choosedItem: {
     flexDirection: 'row',
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 18,
     backgroundColor: '#e4ad71',
     top: 15,
     margin: 3,
-    maxWidth: 280
+    maxWidth: 280,
   },
   choosedItemName: {
     marginRight: 15,

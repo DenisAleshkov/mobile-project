@@ -11,7 +11,7 @@ export const setError = (payload) => ({type: REQUEST_ERROR, payload});
 export const getJobs = (page) => (dispatch, getState) => {
   dispatch(setLoading(true));
   axios
-    .get(JOB.GET_JOBS(page + 1), {
+    .get(JOB.GET_JOBS(page), {
       headers: {
         Authorization: `Token ${GLOBALS.AUTH_TOKEN}`,
       },

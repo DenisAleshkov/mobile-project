@@ -5,17 +5,40 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Stepper = () => {
   const steps = useSelector((state) => state.StepperReducer.steps);
+  const step = useSelector((state) => state.StepperReducer.step);
 
-  const renderSteps = () =>
-    steps.map((step) => (
-      <View style={styles.step} key={step.label}>
-        {step.renderLine && <View style={fillLines(step.filLine, steps)}></View>}
-        <View style={fillCircle(step.fillCircle)}>
-          {renderIcon(step.renderIcon)}
-          <Text style={fillLabel(step.fillLabel)}>{step.label}</Text>
+  const renderActiveStep = (item, index) => {
+    return (
+      <View style={styles.step} key={index}>
+        {index !== 0 && <View style={fillLines(true, steps)}></View>}
+        <View style={fillCircle(true)}>
+          {renderIcon(false)}
+          <Text style={fillLabel(false)}>{item.label}</Text>
         </View>
       </View>
-    ));
+    );
+  };
+
+  const renderInactiveStep = (item, index) => {
+    return (
+      <View style={styles.step} key={item.label}>
+        {item.renderLine && (
+          <View style={fillLines(step > index, steps)}></View>
+        )}
+        <View style={fillCircle(step > index)}>
+          {renderIcon(step > index)}
+          <Text style={fillLabel(step > index)}>{item.label}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderSteps = () =>
+    steps.map((item, index) => {
+      return index === step
+        ? renderActiveStep(item, index)
+        : renderInactiveStep(item, index);
+    });
 
   return <View style={styles.stepper}>{renderSteps()}</View>;
 };

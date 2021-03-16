@@ -1,10 +1,37 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import Payload from './components/Payload/Payload';
-import MyTrucks from "./components/MyTrucks/MyTrucks"
+import {Navigation} from 'react-native-navigation';
+import {setStep} from './../../../store/actions/stepper.action';
+import {useDispatch, useSelector} from 'react-redux';
+import {StyleSheet, View, Button} from 'react-native';
 
-const ProjectScreen = () => {
-  return <MyTrucks />;
+const ProjectScreen = (props) => {
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    const componentAppearListener = Navigation.events().registerComponentDidAppearListener(
+      ({componentId: compId}) => {
+        if (props.componentId === compId) {
+          dispatch(setStep(0));
+        }
+      },
+    );
+    return () => componentAppearListener.remove();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <Button
+        title="Create project"
+        onPress={() => {
+          Navigation.push(props.componentId, {
+            component: {
+              name: 'Payload',
+            },
+          });
+        }}
+      />
+    </View>
+  );
 };
 
 ProjectScreen.options = {
@@ -17,5 +44,13 @@ ProjectScreen.options = {
     text: 'Projects',
   },
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default ProjectScreen;

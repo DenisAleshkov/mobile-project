@@ -77,32 +77,33 @@ const bottomTabs = (icons) => ({
   children: [
     {
       stack: {
-        id: 'ProjectScreen_TAB',
+        id: 'PROJECT_SCREEN_TAB',
         children: [
           {
             component: {
-              id: 'JobDetails_SCREEN',
-              name: 'JobDetails',
-            },
-            component: {
-              id: 'MyTrucks_SCREEN',
-              name: 'MyTrucks',
-            },
-            component: {
-              id: 'Haulers_SCREEN',
+              id: 'HAULERS_SCREEN',
               name: 'Haulers',
             },
             component: {
-              id: 'Project_SCREEN',
-              name: 'ProjectScreen',
+              id: 'MYTRUCKS_SCREEN',
+              name: 'MyTrucks',
             },
+
             component: {
-              id: 'JobSites_SCREEN',
+              id: 'JOBSITES_SCREEN',
               name: 'JobSites',
             },
             component: {
-              id: 'Payload_SCREEN',
+              id: 'JOBDETAILS_SCREEN',
+              name: 'JobDetails',
+            },
+            component: {
+              id: 'PAYLOAD_SCREEN',
               name: 'Payload',
+            },
+            component: {
+              id: 'PROJECT_SCREEN',
+              name: 'ProjectScreen',
             },
           },
         ],
@@ -114,11 +115,11 @@ const bottomTabs = (icons) => ({
     },
     {
       stack: {
-        id: 'JobScreen_TAB',
+        id: 'JOB_SCREEN_TAB',
         children: [
           {
             component: {
-              id: 'Job_SCREEN',
+              id: 'JOB_SCREEN',
               name: 'JobScreen',
             },
           },
@@ -169,12 +170,10 @@ const ProjectScreenTopBarOptions = (icons) => ({
     fontSize: 23,
     fontWeight: '300',
   },
-  leftButtons: [
-    {
-      id: 'arrow-left',
-      icon: icons.arrowLeft,
-    },
-  ],
+  backButtom: {
+    id: 'arrow-left',
+    icon: icons.arrowLeft,
+  },
   rightButtons: [
     {
       id: 'account-hard-hat',

@@ -161,7 +161,7 @@ const HaulersModal = ({modalVisible, handleClose}) => {
             nextName="done"
             onBack={onClear}
             onSubmit={onSubmit}
-            disabled={isDisable}
+            
           />
         </View>
       </View>

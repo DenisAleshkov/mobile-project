@@ -14,16 +14,18 @@ import Buttons from './../Buttons';
 import {Navigation} from 'react-native-navigation';
 import JobSitesModal from './components/JobSitesModal';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {setStep} from './../../../../../store/actions/stepper.action';
+import {
+  setPrevStep,
+  setNextStep,
+} from './../../../../../store/actions/stepper.action';
 import {
   setDropOfSites,
   setPickUpSites,
 } from './../../../../../store/actions/project.action';
-import {secondStep} from './../../../../../store/constants';
 import {useSelector, useDispatch} from 'react-redux';
 
 const JobSites = (props) => {
-  const [pickup, setPickup] = React.useState(false);
+  const [pickupBtn, setPickupBtn] = React.useState(false);
   const [dropofBtn, setDropofBtn] = React.useState(false);
 
   const labelStyle = (value) => ({
@@ -42,13 +44,26 @@ const JobSites = (props) => {
   const dispatch = useDispatch();
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
-
   const dropofSites = useSelector((state) => state.ProjectReducer.dropofSites);
   const pickupSites = useSelector((state) => state.ProjectReducer.pickupSites);
+  const step = useSelector((state) => state.StepperReducer.step);
 
-  const onBack = () => {
-    dispatch(setStep(secondStep));
+  const isDisable = () => {
+    return dropofSites?.dropOffSites && pickupSites?.projectName;
+  };
+
+  const setNextPage = () => {
+    Navigation.push(props.componentId, {
+      component: {
+        name: 'MyTrucks',
+      },
+    });
+    dispatch(setNextStep(step));
+  };
+
+  const setPrevPage = () => {
     Navigation.pop(props.componentId);
+    dispatch(setPrevStep(step));
   };
 
   const renderPickUpModal = () => {
@@ -77,7 +92,7 @@ const JobSites = (props) => {
               setDropofBtn(!dropofBtn);
               dispatch(setDropOfSites(null));
             }}>
-            <Icon name="close-thick" color="#5f5b57" size={20} />
+            <Icon name="close" color="#5f5b57" size={20} />
           </TouchableOpacity>
         </View>
       )
@@ -101,18 +116,18 @@ const JobSites = (props) => {
 
   React.useEffect(() => {
     if (pickupSites) {
-      setPickup(true);
+      setPickupBtn(true);
     }
   }, [pickupSites]);
 
-  const renderBtn = () =>
-    pickup ? (
+  const renderPickUpBtn = () =>
+    pickupBtn ? (
       <TouchableOpacity
         onPress={() => {
-          setPickup(!pickup);
+          setPickupBtn(!pickupBtn);
           dispatch(setPickUpSites(null));
         }}>
-        <Icon name="close-thick" size={25} />
+        <Icon name="close" size={25} />
       </TouchableOpacity>
     ) : (
       <TouchableOpacity
@@ -123,7 +138,7 @@ const JobSites = (props) => {
       </TouchableOpacity>
     );
 
-  const renderBtn2 = () =>
+  const renderDropOffBtn = () =>
     dropofSites ? null : (
       <TouchableOpacity
         onPress={() => {
@@ -140,33 +155,35 @@ const JobSites = (props) => {
       {renderDropOffModal()}
       <View style={styles.inner}>
         <Image
-          style={{
-            width: Dimensions.get('window').width,
-            height: Dimensions.get('window').height / 4,
-          }}
+          style={styles.image}
           source={require('./../../../../assets/map.jpg')}
         />
         <Text style={styles.header}>Job Sites</Text>
         <View style={styles.actionGroup}>
           <View style={styles.inputContainer}>
-            <Text style={labelStyle(pickup)}>Pick-Up Site</Text>
+            <Text style={labelStyle(pickupBtn)}>Pick-Up Site</Text>
             <TextInput style={styles.input} value={pickupSites?.projectName} />
-            {renderBtn()}
+            {renderPickUpBtn()}
           </View>
           <Icon name="origin" size={40} />
         </View>
         <View style={styles.actionGroup}>
           <View style={[styles.inputContainerCount]}>
             <Text style={labelStyle(dropofSites)}>Drop-Off Site</Text>
-            {renderBtn2()}
+            {renderDropOffBtn()}
             {renderCountItems()}
           </View>
           <Icon name="origin" size={40} />
         </View>
       </View>
-      <View style={{position: 'absolute', bottom: 0}}>
-        <Buttons backName="Back" nextName="next" onBack={onBack} />
-      </View>
+      <Buttons
+        backName="back"
+        nextName="next"
+        hasBackIcon={true}
+        disabled={!isDisable()}
+        onBack={setPrevPage}
+        onSubmit={setNextPage}
+      />
     </View>
   );
 };
@@ -174,12 +191,15 @@ const JobSites = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   inner: {
     flex: 1,
     alignItems: 'center',
+  },
+  image: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height / 4,
   },
   header: {
     fontSize: 20,
@@ -187,7 +207,6 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginBottom: 20,
     width: 290,
-    textAlign: 'left',
   },
   actionGroup: {
     flexDirection: 'row',

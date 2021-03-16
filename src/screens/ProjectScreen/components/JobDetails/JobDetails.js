@@ -1,21 +1,15 @@
 import React from 'react';
 import Stepper from './../Stepper';
 import Buttons from './../Buttons';
-import {
-  StyleSheet,
-  TextInput,
-  Switch,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
-import {useDispatch} from 'react-redux';
+import {StyleSheet, TextInput, Switch, Text, View} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 import {Navigation} from 'react-native-navigation';
 import DatePicker from 'react-native-date-picker';
-import {setStep} from './../../../../../store/actions/stepper.action';
+import {
+  setPrevStep,
+  setNextStep,
+} from './../../../../../store/actions/stepper.action';
 import {setJobDetails} from './../../../../../store/actions/project.action';
-import {firstStep, thirdStep} from './../../../../../store/constants';
 
 const JobDetails = (props) => {
   const [inputs, setInputs] = React.useState({
@@ -29,18 +23,16 @@ const JobDetails = (props) => {
     notify: true,
   });
 
+  const dispatch = useDispatch();
+
+  const step = useSelector((state) => state.StepperReducer.step);
+
   const handleChange = (value, name) => {
     setInputs({...inputs, [name]: value});
   };
 
   const toggleSwitch = (value, name) => {
     setSwitches({...switches, [name]: value});
-  };
-
-  const dispatch = useDispatch();
-
-  const setBackStep = () => {
-    dispatch(setStep(firstStep));
   };
 
   const submitHandler = () => {
@@ -55,96 +47,89 @@ const JobDetails = (props) => {
         name: 'JobSites',
       },
     });
-    dispatch(setStep(thirdStep));
+    dispatch(setNextStep(step));
   };
 
-  const isNext = switches.limit === false;
+  const setPrevPage = () => {
+    Navigation.pop(props.componentId);
+    dispatch(setPrevStep(step));
+  };
 
   return (
     <View style={styles.container}>
       <Stepper />
       <View style={styles.inner}>
-        <Text style={styles.header}>Job Details</Text>
-        <View style={styles.action}>
-          <View style={styles.actionGroup}>
-            <TextInput
-              style={[styles.input, styles.bigInput]}
-              onChangeText={(value) => handleChange(value, 'street')}
-              value={inputs.street}
-            />
-          </View>
-          <View style={styles.actionGroup}>
-            <TextInput
-              style={[
-                styles.input,
-                styles.inputWithCheckbox,
-                {backgroundColor: switches.limit ? '#93959657' : '#fff'},
-              ]}
-              onChangeText={(value) => handleChange(value, 'name')}
-              value={inputs.name}
-            />
-            <View style={styles.switchColumn}>
-              <Text style={styles.label}>Unlimited</Text>
-              <Switch
-                trackColor={{false: '#767577a6', true: '#de8a1d99'}}
-                thumbColor={switches.limit ? '#de8a1d' : '#f4f3f4'}
-                ios_backgroundColor="#d0c9c114"
-                onValueChange={(value) => toggleSwitch(value, 'limit')}
-                value={switches.limit}
+        <View style={styles.actionContainer}>
+          <Text style={styles.header}>Job Details</Text>
+          <View style={styles.action}>
+            <View style={styles.actionGroup}>
+              <TextInput
+                style={[styles.input, styles.bigInput]}
+                onChangeText={(value) => handleChange(value, 'street')}
+                value={inputs.street}
               />
             </View>
-          </View>
-          <View style={styles.actionGroup}>
-            <View style={styles.switchRow}>
-              <Text style={[styles.label, styles.rowLabel]}>Notify</Text>
-              <Switch
-                trackColor={{false: '#767577', true: '#de8a1d99'}}
-                thumbColor={switches.notify ? '#de8a1d' : '#f4f3f4'}
-                ios_backgroundColor="#d0c9c114"
-                onValueChange={(value) => toggleSwitch(value, 'notify')}
-                value={switches.notify}
+            <View style={styles.actionGroup}>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.inputWithCheckbox,
+                  {backgroundColor: switches.limit ? '#93959657' : '#fff'},
+                ]}
+                onChangeText={(value) => handleChange(value, 'name')}
+                value={inputs.name}
+              />
+              <View style={styles.switchColumn}>
+                <Text style={styles.label}>Unlimited</Text>
+                <Switch
+                  trackColor={{false: '#767577a6', true: '#de8a1d99'}}
+                  thumbColor={switches.limit ? '#de8a1d' : '#f4f3f4'}
+                  ios_backgroundColor="#d0c9c114"
+                  onValueChange={(value) => toggleSwitch(value, 'limit')}
+                  value={switches.limit}
+                />
+              </View>
+            </View>
+            <View style={styles.actionGroup}>
+              <View style={styles.switchRow}>
+                <Text style={[styles.label, styles.rowLabel]}>Notify</Text>
+                <Switch
+                  trackColor={{false: '#767577', true: '#de8a1d99'}}
+                  thumbColor={switches.notify ? '#de8a1d' : '#f4f3f4'}
+                  ios_backgroundColor="#d0c9c114"
+                  onValueChange={(value) => toggleSwitch(value, 'notify')}
+                  value={switches.notify}
+                />
+              </View>
+              <View style={styles.switchRow}>
+                <Text style={[styles.label, styles.rowLabel]}>Overnight</Text>
+                <Switch
+                  trackColor={{false: '#767577', true: '#de8a1d99'}}
+                  thumbColor={switches.overnight ? '#de8a1d' : '#f4f3f4'}
+                  ios_backgroundColor="#d0c9c114"
+                  onValueChange={(value) => toggleSwitch(value, 'overnight')}
+                  value={switches.overnight}
+                />
+              </View>
+            </View>
+            <View style={[styles.actionGroup]}>
+              <DatePicker
+                mode="datetime"
+                date={inputs.date}
+                style={{height: 135}}
+                onDateChange={(value) => handleChange(value, 'date')}
               />
             </View>
-            <View style={styles.switchRow}>
-              <Text style={[styles.label, styles.rowLabel]}>Overnight</Text>
-              <Switch
-                trackColor={{false: '#767577', true: '#de8a1d99'}}
-                thumbColor={switches.overnight ? '#de8a1d' : '#f4f3f4'}
-                ios_backgroundColor="#d0c9c114"
-                onValueChange={(value) => toggleSwitch(value, 'overnight')}
-                value={switches.overnight}
-              />
-            </View>
-          </View>
-          <View style={[styles.actionGroup]}>
-            <DatePicker
-              mode="datetime"
-              date={inputs.date}
-              style={{height: 135}}
-              onDateChange={(value) => handleChange(value, 'date')}
-            />
           </View>
         </View>
-        <View style={{position: 'absolute', bottom: 0}}>
-          <Buttons
-            backName="Back"
-            nextName="next"
-            disabled={isNext}
-            onSubmit={submitHandler}
-            onBack={() => {
-              Navigation.pop(props.componentId, {
-                options: {
-                  animations: {
-                    push: {
-                      enabled: false,
-                    },
-                  },
-                },
-              });
-              setBackStep();
-            }}
-          />
-        </View>
+        <Buttons
+          backName="back"
+          nextName="next"
+          hasBackIcon={true}
+          disabled={!switches.limit}
+          onSubmit={submitHandler}
+          onBack={setPrevPage}
+        />
       </View>
     </View>
   );
@@ -158,7 +143,10 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  actionContainer: {
+    alignItems: 'flex-start',
   },
   header: {
     fontSize: 20,

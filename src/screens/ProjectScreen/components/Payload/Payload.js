@@ -3,8 +3,10 @@ import RadioButton from '../RadioButton';
 import {Navigation} from 'react-native-navigation';
 import {StyleSheet, Text, View, SafeAreaView, FlatList} from 'react-native';
 import Stepper from './../Stepper';
-import {firstStep, secondStep} from './../../../../../store/constants';
-import {setStep} from './../../../../../store/actions/stepper.action';
+import {
+  setStep,
+  setNextStep,
+} from './../../../../../store/actions/stepper.action';
 import {useSelector, useDispatch} from 'react-redux';
 
 const Item = (props) => {
@@ -37,42 +39,38 @@ const Payload = (props) => {
   const [radioSelected, setRadioSelected] = React.useState(null);
 
   const payloads = useSelector((state) => state.ProjectReducer.payloads);
+  const step = useSelector((state) => state.StepperReducer.step);
   const dispatch = useDispatch();
 
   React.useEffect(() => {
     const componentAppearListener = Navigation.events().registerComponentDidAppearListener(
       ({componentId: compId}) => {
         if (props.componentId === compId) {
-          dispatch(setStep(firstStep));
+          dispatch(setStep(step));
         }
       },
     );
-
     return () => componentAppearListener.remove();
   }, []);
 
-  const setStepper = () => {
-    dispatch(setStep(secondStep));
-  };
-
-  const setPage = () => {
+  const setNextPage = () => {
     Navigation.push(props.componentId, {
       component: {
         name: 'JobDetails',
       },
     });
+    dispatch(setNextStep(step));
   };
 
-  const renderItem = (data) => {
+  const renderItem = (props) => {
     return (
       <Item
         radioSelected={radioSelected}
         radioPressHandler={() => {
-          setRadioSelected(data.item.id);
-          setPage();
-          setStepper();
+          setRadioSelected(props.item.id);
+          setNextPage();
         }}
-        {...data}
+        {...props}
       />
     );
   };
