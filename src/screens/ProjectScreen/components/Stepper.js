@@ -33,6 +33,14 @@ const Stepper = () => {
     );
   };
 
+  const renderIcon = (done) => {
+    return done ? (
+      <Icon name="check" style={styles.icon} color="#fff" size={20} />
+    ) : (
+      <Text style={styles.icon} />
+    );
+  };
+
   const renderSteps = () =>
     steps.map((item, index) => {
       return index === step
@@ -66,14 +74,6 @@ const fillLabel = (done) => ({
   height: 15,
   color: done ? '#de8a1d' : '#000',
 });
-
-const renderIcon = (done) => {
-  return done ? (
-    <Icon name="check" style={styles.icon} color="#fff" size={20} />
-  ) : (
-    <Text style={styles.icon} />
-  );
-};
 
 const styles = StyleSheet.create({
   stepper: {

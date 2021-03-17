@@ -9,7 +9,7 @@ const Buttons = (props) => {
         {props.hasBackIcon && <Icon name="arrow-left" size={30} color="#de8a1d" />}
         <Text style={styles.backButtonLabel}>{props.backName}</Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {!props.hideSubmitBtn &&<TouchableOpacity
         style={[
           styles.nextButton,
           {backgroundColor: props.disabled ? '#927f67cf':'#f1b156' },
@@ -18,6 +18,7 @@ const Buttons = (props) => {
         disabled={props.disabled}>
         <Text style={styles.nextButtonLabel}>{props.nextName}</Text>
       </TouchableOpacity>
+}
     </View>
   );
 };

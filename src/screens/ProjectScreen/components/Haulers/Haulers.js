@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import Buttons from '../Buttons';
 import Stepper from '../Stepper';
-import CheckBox from '../CheckBox';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import HaulersModal from './components/HaulersModal';
 import {Navigation} from 'react-native-navigation';
@@ -47,12 +46,12 @@ const Haulers = (props) => {
     console.log('state', state.ProjectReducer)
   }
 
-  const renderTrucks = () =>
+  const renderHaulers = () =>
     haulers &&
     haulers.map((item) => (
       <View style={styles.choosedItem} key={item.id}>
         <Text style={styles.choosedItemName}>
-          {item.dropOffSites} - {item.count} Req.
+          {item.data.dropOffSites} - {item.data.count} Req.
         </Text>
         <TouchableOpacity
           style={styles.choosedItemcons}
@@ -78,8 +77,8 @@ const Haulers = (props) => {
             <TouchableOpacity
               style={styles.inputContainer}
               onPress={() => setModalVisible(true)}>
-              <Text style={labelStyle(haulers)}>Select Haulers</Text>
-              <View style={styles.chosedItems}>{renderTrucks()}</View>
+              <Text style={labelStyle(haulers && haulers.length)}>Select Haulers</Text>
+              <View style={styles.chosedItems}>{renderHaulers()}</View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.inputContainer} onPress={() => {}}>
               <Text>Job Notes - Optional</Text>

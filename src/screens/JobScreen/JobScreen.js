@@ -20,18 +20,19 @@ const JobScreen = (props) => {
   const dispatch = useDispatch();
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
-  console.log('jobs', jobs)
+  console.log('jobs', jobs);
   const error = useSelector((state) => state.JobReducer.error);
   const hasMore = useSelector((state) => state.JobReducer.hasMore);
   const loading = useSelector((state) => state.LoadingReducer.isLoading);
   const page = useSelector((state) => state.JobReducer.page);
+  console.log('page', page);
 
   React.useEffect(() => {
     dispatch(getJobs(page));
   }, []);
 
   const handleLoad = () => {
-    dispatch(getJobs(page + 1));
+    dispatch(getJobs(page));
   };
 
   const handleRefresh = () => {
@@ -45,13 +46,7 @@ const JobScreen = (props) => {
   const renderFooter = () => {
     if (!loading) return null;
     return (
-      <View
-        style={{
-          width: Dimensions.get('window').width,
-          paddingVertical: 20,
-          marginTop: 10,
-          marginBottom: 10,
-        }}>
+      <View style={styles.footer}>
         <ActivityIndicator animating color="#848d95" size="large" />
       </View>
     );
@@ -66,21 +61,23 @@ const JobScreen = (props) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Header />
       <FlatList
         data={jobs}
         style={styles.list}
         refreshing={refreshing}
         renderItem={renderItem}
-        keyExtractor={(item) => `${item.id}`}
-        onEndReached={handleLoad}
+        keyExtractor={(item) => item.id.toString()}
+        onEndReached={() => {
+          handleLoad();
+        }}
+        extraData={false}
         onRefresh={handleRefresh}
         ListFooterComponent={renderFooter}
-        onEndReachedThreshold={0.5}
       />
       <StickyBtn />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -92,12 +89,20 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    height: Dimensions.get('window').height,
     backgroundColor: '#312f2f',
   },
   list: {
+    flex: 1,
     backgroundColor: '#dbd6dc',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+  },
+  footer: {
+    width: Dimensions.get('window').width,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
 });
 

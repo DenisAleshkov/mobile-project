@@ -45,6 +45,7 @@ const JobSites = (props) => {
   const dispatch = useDispatch();
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
+  const error = useSelector((state) => state.JobReducer.error);
   const dropofSites = useSelector((state) => state.ProjectReducer.dropofSites);
   const pickupSites = useSelector((state) => state.ProjectReducer.pickupSites);
   const step = useSelector((state) => state.StepperReducer.step);
@@ -107,7 +108,7 @@ const JobSites = (props) => {
         modalVisible={dropofModalVisible}
         onRequestClose={() => setDropofModalVisible(!dropofModalVisible)}
         data={jobs}
-        onExit={()=>setDropofModalVisible(!dropofModalVisible)}
+        onExit={() => setDropofModalVisible(!dropofModalVisible)}
         onSubmit={setDropOfSites}
       />
     );
@@ -147,6 +148,20 @@ const JobSites = (props) => {
       </TouchableOpacity>
     );
 
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text>{error}</Text>
+        <Buttons
+          backName="back"
+          hideSubmitBtn={true}
+          hasBackIcon={true}
+          onBack={setPrevPage}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Stepper />
@@ -178,7 +193,6 @@ const JobSites = (props) => {
       <Buttons
         backName="back"
         nextName="next"
-        hasBackIcon={true}
         disabled={isDisable()}
         onBack={setPrevPage}
         onSubmit={setNextPage}
@@ -224,6 +238,11 @@ const styles = StyleSheet.create({
     paddingVertical: 28,
     paddingHorizontal: Platform.OS === 'ios' ? 15 : 5,
     paddingVertical: Platform.OS === 'ios' ? 15 : 5,
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputContainerCount: {
     borderWidth: 1,
