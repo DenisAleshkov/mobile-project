@@ -1,10 +1,10 @@
 import React from 'react';
-import RadioButton from './../../RadioButton';
 import Buttons from './../../Buttons';
+import CheckBox from './../../CheckBox';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Navigation} from 'react-native-navigation';
 import {
   StyleSheet,
-  SafeAreaView,
   Text,
   TextInput,
   FlatList,
@@ -13,18 +13,18 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
+import {getSearchData} from '../../../services/functions.service';
 
 const Item = (props) => {
   const {item} = props;
   return (
     <View style={styles.modalItem}>
-      <RadioButton
-        radioPressHandler={props.radioPressHandler}
-        selectedId={props.radioSelected}
-        currentId={item.id}
-        borderColor="#88888824"
+      <CheckBox
+        checked={props.checked}
+        currentId={props.item.id}
+        handleChecked={props.handleChecked}
       />
-      <Text>{item[`${props.field}`]}</Text>
+      <Text style={styles.modalItemLabel}>{item.dropOffSites}</Text>
     </View>
   );
 };
@@ -35,36 +35,55 @@ const JobSitesModal = ({
   data,
   onSubmit,
   onExit,
-  field,
 }) => {
-  const [radioSelected, setRadioSelected] = React.useState(null);
+  const [checked, setChecked] = React.useState([]);
+  const [search, setSearch] = React.useState('');
+  const [searchData, setSearchData] = React.useState([]);
 
-  const error = useSelector(state => state.JobReducer.error)
-
-  React.useEffect(() => {
-    data[0] && setRadioSelected({[field]: data[0][`${field}`], id: data[0].id});
-  }, [data]);
+  const error = useSelector((state) => state.JobReducer.error);
 
   const dispatch = useDispatch();
+
+  const handleChecked = (item) => {
+    const isCheck = checked.filter((check) => check.id === item.id).length;
+    if (!isCheck) {
+      setChecked([...checked, {id: item.id, dropOffSites: item.dropOffSites}]);
+    } else {
+      const newTrucks = checked.filter((check) => check.id !== item.id);
+      setChecked(newTrucks);
+    }
+  };
+
+  const handleSearch = (text) => {
+    console.log('text', text)
+    if (text) {
+      setSearchData(getSearchData(data, text, 'dropOffSites'));
+      setSearch(text);
+    } else {
+      setSearchData(data);
+      setSearch(text);
+    }
+  };
+
+  React.useEffect(() => {
+    setSearchData(data);
+  }, []);
+
+ 
 
   const renderItem = (props) => {
     return (
       <Item
-        radioPressHandler={() => {
-          setRadioSelected({
-            [field]: props.item[field],
-            id: props.item.id,
-          });
-        }}
-        radioSelected={radioSelected.id}
-        field={field}
         {...props}
+        checked={checked}
+        currentId={props.item.id}
+        handleChecked={() => handleChecked(props.item)}
       />
     );
   };
 
   const onSubmitHandler = () => {
-    dispatch(onSubmit(radioSelected));
+    dispatch(onSubmit(checked));
     onExit();
   };
 
@@ -80,22 +99,30 @@ const JobSitesModal = ({
             <Icon name="close" size={25} />
           </TouchableOpacity>
           <View style={styles.searchContainer}>
-            <TextInput placeholder="Select Pick-Up Site" />
+            <TextInput
+              placeholder="Select Pick-Up Site"
+              value={search}
+              onChangeText={(text) => handleSearch(text)}
+            />
             <Icon name="magnify" size={25} color="#000" />
           </View>
-         {
-           error ? <Text style={styles.errorContainer}>{error}</Text> :
-           <FlatList
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
-            style={styles.modalList}
-          />
-         } 
+          {error ? (
+            <Text style={styles.errorContainer}>{error}</Text>
+          ) : (
+            <FlatList
+              data={searchData}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
+              style={styles.modalList}
+            />
+          )}
           <Buttons
             backName="cancel"
             nextName="continue"
-            onBack={onExit}
+            onBack={() => {
+              setChecked([]);
+              onExit();
+            }}
             onSubmit={onSubmitHandler}
           />
         </View>
@@ -108,9 +135,9 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
-    marginVertical: Platform.OS === 'ios' ? 250 : 160,
   },
   modalView: {
+    height: 450,
     margin: 20,
     backgroundColor: 'white',
     borderRadius: 20,
@@ -131,7 +158,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   modalList: {
-    marginVertical: 30,
+    borderTopColor: '#88888824',
+    borderTopWidth: 2,
+    borderBottomColor: '#88888824',
+    borderBottomWidth: 2,
+    marginVertical: 20,
+  },
+  modalItemLabel: {
+    marginLeft: 15,
   },
   searchContainer: {
     flexDirection: 'row',

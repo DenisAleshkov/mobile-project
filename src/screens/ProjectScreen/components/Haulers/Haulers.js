@@ -52,7 +52,7 @@ const Haulers = (props) => {
     haulers.map((item) => (
       <View style={styles.choosedItem} key={item.id}>
         <Text style={styles.choosedItemName}>
-          {item.data.dropOffSites} - {item.data.count} Req.
+          {item.dropOffSites} - {item.count} Req.
         </Text>
         <TouchableOpacity
           style={styles.choosedItemcons}

@@ -20,7 +20,9 @@ const JobScreen = (props) => {
   const dispatch = useDispatch();
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
+  console.log('jobs', jobs)
   const error = useSelector((state) => state.JobReducer.error);
+  const hasMore = useSelector((state) => state.JobReducer.hasMore);
   const loading = useSelector((state) => state.LoadingReducer.isLoading);
   const page = useSelector((state) => state.JobReducer.page);
 

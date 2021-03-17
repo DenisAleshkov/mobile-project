@@ -15,9 +15,19 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {setHaulers} from './../../../../../../store/actions/project.action';
 import {getJobs} from './../../../../../../store/actions/job.action';
+import {getSearchData} from '../../../services/functions.service';
 
 const Item = (props) => {
+  const [count, setCount] = React.useState('0')
   const {item} = props;
+  const countItem = props.checked.filter((item) => {
+    
+    return item.id === props.currentId;
+  })[0];
+  console.log('countItem', countItem)
+  const handeChange = () => {
+    setCount(`${countItem}`)
+  }
   return (
     <View style={styles.item}>
       <View style={styles.itemContent}>
@@ -27,7 +37,7 @@ const Item = (props) => {
             <Text style={styles.counterLabel}>-</Text>
           </TouchableOpacity>
           <View style={styles.label}>
-            <Text style={styles.labelText}>{props.selected?.count || 0}</Text>
+            <TextInput editable={false} value={count} onChangeText={handeChange} style={styles.labelText} />
           </View>
           <TouchableOpacity style={styles.counter} onPress={props.handleAdd}>
             <Text style={styles.counterLabel}>+</Text>
@@ -39,8 +49,10 @@ const Item = (props) => {
 };
 
 const HaulersModal = ({modalVisible, handleClose}) => {
-  const [selected, setSelected] = React.useState(new Map());
-  console.log('selected', selected);
+  const [checked, setChecked] = React.useState([]);
+  const [search, setSearch] = React.useState('');
+  const [searchData, setSearchData] = React.useState([]);
+  console.log('checked', checked);
 
   const error = useSelector((state) => state.JobReducer.error);
   const jobs = useSelector((state) => state.JobReducer.jobs);
@@ -50,50 +62,82 @@ const HaulersModal = ({modalVisible, handleClose}) => {
 
   const dispatch = useDispatch();
 
+  React.useEffect(() => {
+    setSearchData(jobs);
+  }, []);
+
   const handleAdd = (props) => {
-    setSelected((prevState) =>
-      prevState.set(props.item.id, {
-        id: props.item.id,
-        dropOffSites: props.item.dropOffSites,
-        count: selected.get(props.item.id)?.count + 1 || 1,
-      }),
-    );
+    const {item} = props;
+    const isCheck = checked.filter((check) => check.id === item.id).length;
+    if (!isCheck) {
+      setChecked([
+        ...checked,
+        {id: item.id, dropOffSites: item.dropOffSites, count: 1},
+      ]);
+    } else {
+      const newTrucks = checked.filter((check) => check.id !== item.id);
+      const newItem = checked.filter((check) => check.id === item.id);
+      setChecked([
+        ...newTrucks,
+        {
+          id: item.id,
+          dropOffSites: item.dropOffSites,
+          count: newItem[0].count + 1,
+        },
+      ]);
+    }
   };
 
   const handleDelete = (props) => {
-    setSelected((prevState) =>
-      prevState.set(props.item.id, {
-        id: props.item.id,
-        dropOffSites: props.item.dropOffSites,
-        count:
-          selected.get(props.item.id)?.count > 0
-            ? selected.get(props.item.id)?.count - 1
-            : 0,
-      }),
-    );
+    const {item} = props;
+    const isCheck = checked.filter((check) => check.id === item.id).length;
+    if (!isCheck) {
+      setChecked([
+        ...checked,
+        {id: item.id, dropOffSites: item.dropOffSites, count: 1},
+      ]);
+    } else {
+      const newTrucks = checked.filter((check) => check.id !== item.id);
+      const newItem = checked.filter((check) => check.id === item.id);
+      setChecked([
+        ...newTrucks,
+        {
+          id: item.id,
+          dropOffSites: item.dropOffSites,
+          count:
+            newItem[0].count === 0 ? newItem[0].count : newItem[0].count - 1,
+        },
+      ]);
+    }
   };
 
-  const onSubmit = () => {
-    const haulers = Array.from(selected, ([id, data]) => ({id, data}));
-    dispatch(setHaulers(haulers));
-    handleClose();
+  const handleSearch = (text) => {
+    if (text) {
+      setSearchData(getSearchData(jobs, text, 'dropOffSites'));
+      setSearch(text);
+    } else {
+      setSearchData(jobs);
+      setSearch(text);
+    }
   };
+
+  const onSubmit = () => {};
 
   const onClear = () => {
-    dispatch(setHaulers(null));
-    setSelected(new Map());
+    setChecked([]);
     handleClose();
   };
 
   const isDisable = () => {
-    return selected.size;
+    return false;
   };
 
   const renderItem = (props) => {
     return (
       <Item
         {...props}
-        selected={selected.get(props.item.id)}
+        checked={checked}
+        currentId={props.item.id}
         handleAdd={() => handleAdd(props)}
         handleDelete={() => handleDelete(props)}
       />
@@ -136,7 +180,11 @@ const HaulersModal = ({modalVisible, handleClose}) => {
           </TouchableOpacity>
           <Text>Select Haulers</Text>
           <View style={styles.searchContainer}>
-            <TextInput placeholder="Search for Haulers" />
+            <TextInput
+              placeholder="Search for Haulers"
+              value={searchData}
+              onChangeText={(text) => handleSearch(text)}
+            />
             <Icon name="magnify" size={25} color="#000" />
           </View>
           {error ? (
@@ -145,7 +193,7 @@ const HaulersModal = ({modalVisible, handleClose}) => {
             </View>
           ) : (
             <FlatList
-              data={jobs}
+              data={searchData}
               renderItem={renderItem}
               refreshing={refreshing}
               onEndReached={handleLoad}
@@ -161,7 +209,6 @@ const HaulersModal = ({modalVisible, handleClose}) => {
             nextName="done"
             onBack={onClear}
             onSubmit={onSubmit}
-            
           />
         </View>
       </View>
@@ -173,9 +220,9 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
-    marginVertical: Platform.OS === 'ios' ? 250 : 200,
   },
   modalView: {
+    height: 480,
     margin: 20,
     backgroundColor: 'white',
     borderRadius: 20,

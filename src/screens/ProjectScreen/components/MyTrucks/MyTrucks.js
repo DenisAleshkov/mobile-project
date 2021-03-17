@@ -63,7 +63,7 @@ const MyTrucks = (props) => {
     trucks &&
     trucks.map((item) => (
       <View style={styles.choosedItem} key={item.id}>
-        <Text style={styles.choosedItemName}>{item.projectName}</Text>
+        <Text style={styles.choosedItemName}>{item.companyName}</Text>
         <TouchableOpacity
           style={styles.choosedItemcons}
           onPress={() => deleteItem(item.id)}>

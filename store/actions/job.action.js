@@ -26,7 +26,7 @@ export const getJobs = (page) => (dispatch, getState) => {
       }
     })
     .catch((error) => {
-      dispatch(setError({error: error.response.status}));
+      dispatch(setError({error: 'something wrong'}));
       dispatch(setLoading(false));
     });
 };

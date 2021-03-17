@@ -1,6 +1,6 @@
 export const GLOBALS = {
   BASE_URL: 'https://test-api.truckit.com/api/2/job-orders',
-  AUTH_TOKEN: 'b1069b6a398fd915aa1cd55abc98ffaf72d32843',
+  AUTH_TOKEN: '1c5ba26d77633593effb2d79e287ba23ed02117e',
 };
 
 export const SET_JOBS = 'SET_JOBS';
@@ -8,6 +8,7 @@ export const SET_JOBS = 'SET_JOBS';
 export const SET_LOADING = 'SET_LOADING';
 export const SET_REFRESHING = 'SET_REFRESHING';
 export const REQUEST_ERROR = 'REQUEST_ERROR';
+export const SET_HAS_MORE = 'SET_HAS_MORE';
 
 export const SET_PICKUP_SITES = 'SET_PICKUP_SITES';
 export const SET_DROPOF_SITES = 'SET_DROPOF_SITES';

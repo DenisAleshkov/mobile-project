@@ -12,7 +12,8 @@ import {
 import Stepper from './../Stepper';
 import Buttons from './../Buttons';
 import {Navigation} from 'react-native-navigation';
-import JobSitesModal from './components/JobSitesModal';
+import JobSitesModal from './components/PickUpModal';
+import DropOffModal from './components/DropOffModal';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   setPrevStep,
@@ -74,41 +75,39 @@ const JobSites = (props) => {
           setPickupModalVisible(!pickupModalVisible);
         }}
         data={jobs}
-        field={'projectName'}
         onExit={() => setPickupModalVisible(!pickupModalVisible)}
         onSubmit={setPickUpSites}
       />
     );
   };
 
-  const renderCountItems = () => {
-    return (
-      dropofSites && (
-        <View style={[labelStyle(dropofBtn), styles.choosedItem]}>
-          <Text style={styles.choosedItemName}>{dropofSites.dropOffSites}</Text>
-          <TouchableOpacity
-            style={styles.choosedItemcons}
-            onPress={() => {
-              setDropofBtn(!dropofBtn);
-              dispatch(setDropOfSites(null));
-            }}>
-            <Icon name="close" color="#5f5b57" size={20} />
-          </TouchableOpacity>
-        </View>
-      )
-    );
-  };
+  const renderCountItems = () =>
+    dropofSites &&
+    dropofSites.map((item) => (
+      <View style={[labelStyle(dropofBtn), styles.choosedItem]} key={item.id}>
+        <Text style={styles.choosedItemName}>
+          {dropofSites.length > 1
+            ? `${dropofSites.length} items`
+            : item.dropOffSites}
+        </Text>
+        <TouchableOpacity
+          style={styles.choosedItemcons}
+          onPress={() => {
+            setDropofBtn(!dropofBtn);
+            dispatch(setDropOfSites(null));
+          }}>
+          <Icon name="close" color="#5f5b57" size={20} />
+        </TouchableOpacity>
+      </View>
+    ));
 
   const renderDropOffModal = () => {
     return (
-      <JobSitesModal
+      <DropOffModal
         modalVisible={dropofModalVisible}
-        onRequestClose={() => {
-          setDropofModalVisible(!dropofModalVisible);
-        }}
+        onRequestClose={() => setDropofModalVisible(!dropofModalVisible)}
         data={jobs}
-        field={'dropOffSites'}
-        onExit={() => setDropofModalVisible(!dropofModalVisible)}
+        onExit={()=>setDropofModalVisible(!dropofModalVisible)}
         onSubmit={setDropOfSites}
       />
     );
@@ -180,7 +179,7 @@ const JobSites = (props) => {
         backName="back"
         nextName="next"
         hasBackIcon={true}
-        disabled={!isDisable()}
+        disabled={isDisable()}
         onBack={setPrevPage}
         onSubmit={setNextPage}
       />

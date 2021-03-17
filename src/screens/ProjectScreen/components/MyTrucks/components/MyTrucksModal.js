@@ -2,17 +2,10 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Buttons from '../../Buttons';
 import CheckBox from '../../CheckBox';
-import {
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  TextInput,
-  Text,
-  View,
-  FlatList,
-} from 'react-native';
+import {StyleSheet, Modal, TextInput, Text, View, FlatList} from 'react-native';
 import {useDispatch} from 'react-redux';
 import {setTrucks} from './../../../../../../store/actions/project.action';
+import {getSearchData} from '../../../services/functions.service';
 
 const Item = (props) => {
   const {item} = props;
@@ -33,18 +26,34 @@ const Item = (props) => {
 
 const MyTrucksModal = ({modalVisible, handleClose, data}) => {
   const [checked, setChecked] = React.useState([]);
-  const [checkedAll, setCheckedAll] = React.useState(false)
+  const [checkedAll, setCheckedAll] = React.useState(false);
+  const [search, setSearch] = React.useState('');
+  const [searchData, setSearchData] = React.useState([]);
   const dispatch = useDispatch();
 
   const handleChecked = (item) => {
     const isCheck = checked.filter((check) => check.id === item.id).length;
     if (!isCheck) {
-      setChecked([...checked, {id: item.id, projectName: item.projectName}]);
+      setChecked([...checked, {id: item.id, companyName: item.companyName}]);
     } else {
       const newTrucks = checked.filter((check) => check.id !== item.id);
       setChecked(newTrucks);
     }
   };
+
+  const handleSearch = (text) => {
+    if (text) {
+      setSearchData(getSearchData(data, text, 'companyName'));
+      setSearch(text);
+    } else {
+      setSearchData(data);
+      setSearch(text);
+    }
+  };
+
+  React.useEffect(() => {
+    setSearchData(data);
+  }, []);
 
   const onSubmit = () => {
     dispatch(setTrucks(checked));
@@ -53,15 +62,19 @@ const MyTrucksModal = ({modalVisible, handleClose, data}) => {
 
   const onClear = () => {
     dispatch(setTrucks(null));
-    setChecked([])
-    setCheckedAll(false)
+    setChecked([]);
+    setCheckedAll(false);
     handleClose();
   };
 
   const chooseAll = () => {
-    setChecked(data)
-    setCheckedAll(!checkedAll)
-  }
+    if (!checkedAll) {
+      setChecked(data);
+    } else {
+      setChecked([]);
+    }
+    setCheckedAll(!checkedAll);
+  };
 
   const renderItem = (props) => {
     return (
@@ -84,7 +97,11 @@ const MyTrucksModal = ({modalVisible, handleClose, data}) => {
         <View style={styles.modalView}>
           <Text>Trucks from Fleet</Text>
           <View style={styles.searchContainer}>
-            <TextInput placeholder="Select Pick-Up Site" />
+            <TextInput
+              placeholder="Select Pick-Up Site"
+              value={search}
+              onChangeText={(text) => handleSearch(text)}
+            />
             <Icon name="magnify" size={25} color="#000" />
           </View>
           <View style={styles.changeAllItems}>
@@ -94,7 +111,7 @@ const MyTrucksModal = ({modalVisible, handleClose, data}) => {
             </View>
           </View>
           <FlatList
-            data={data}
+            data={searchData}
             renderItem={renderItem}
             keyExtractor={(item) => item.id.toString()}
           />
@@ -114,9 +131,9 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
-    marginVertical: Platform.OS === 'ios' ? 250 : 200,
   },
   modalView: {
+    height: 450,
     margin: 20,
     backgroundColor: 'white',
     borderRadius: 20,
