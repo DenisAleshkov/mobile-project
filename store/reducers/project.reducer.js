@@ -17,6 +17,12 @@ const initialState = {
       unitPrice: 20,
       totalQuantity: '99.22 / 5000',
     },
+    {
+      id: 18542,
+      payloadName: '# 5 Stone',
+      unitPrice: 10,
+      totalQuantity: '0 / 0',
+    },
   ],
   pickupSites: null,
   dropofSites: null,

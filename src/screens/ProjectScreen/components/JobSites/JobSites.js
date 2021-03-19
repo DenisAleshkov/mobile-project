@@ -1,4 +1,8 @@
 import React from 'react';
+import Buttons from './../Buttons';
+import JobSitesModal from './components/PickUpModal';
+import DropOffModal from './components/DropOffModal';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   StyleSheet,
   Text,
@@ -9,12 +13,6 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import Stepper from './../Stepper';
-import Buttons from './../Buttons';
-import {Navigation} from 'react-native-navigation';
-import JobSitesModal from './components/PickUpModal';
-import DropOffModal from './components/DropOffModal';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   setPrevStep,
   setNextStep,
@@ -48,6 +46,7 @@ const JobSites = (props) => {
   const error = useSelector((state) => state.JobReducer.error);
   const dropofSites = useSelector((state) => state.ProjectReducer.dropofSites);
   const pickupSites = useSelector((state) => state.ProjectReducer.pickupSites);
+  const activeError = useSelector((state) => state.ProjectReducer.activeError);
   const step = useSelector((state) => state.StepperReducer.step);
 
   const isDisable = () => {
@@ -61,6 +60,10 @@ const JobSites = (props) => {
   const setPrevPage = () => {
     dispatch(setPrevStep(step));
   };
+
+  const renderError = () =>
+    activeError &&
+    activeError.site && <Text style={{color: 'red'}}>{activeError.site}</Text>;
 
   const renderPickUpModal = () => {
     return (
@@ -142,7 +145,7 @@ const JobSites = (props) => {
       </TouchableOpacity>
     );
 
-  if (error) {
+  if (!error) {
     return (
       <View style={styles.errorContainer}>
         <Text>{error}</Text>
@@ -182,6 +185,7 @@ const JobSites = (props) => {
           </View>
           <Icon name="origin" size={40} />
         </View>
+        {renderError()}
       </View>
       <Buttons
         backName="back"

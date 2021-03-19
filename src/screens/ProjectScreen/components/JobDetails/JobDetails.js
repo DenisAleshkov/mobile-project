@@ -3,13 +3,14 @@ import Stepper from './../Stepper';
 import Buttons from './../Buttons';
 import {StyleSheet, TextInput, Switch, Text, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {Navigation} from 'react-native-navigation';
 import DatePicker from 'react-native-date-picker';
 import {
   setPrevStep,
   setNextStep,
 } from './../../../../../store/actions/stepper.action';
-import {setJobDetails} from './../../../../../store/actions/project.action';
+import {
+  setJobDetails,
+} from './../../../../../store/actions/project.action';
 
 const JobDetails = (props) => {
   const [inputs, setInputs] = React.useState({
@@ -26,6 +27,7 @@ const JobDetails = (props) => {
   const dispatch = useDispatch();
 
   const step = useSelector((state) => state.StepperReducer.step);
+  const activeError = useSelector((state) => state.ProjectReducer.activeError);
 
   const handleChange = (value, name) => {
     setInputs({...inputs, [name]: value});
@@ -49,6 +51,12 @@ const JobDetails = (props) => {
     dispatch(setPrevStep(step));
   };
 
+  const renderError = () =>
+    activeError &&
+    activeError.quantity && (
+      <Text style={{color: 'red'}}>{activeError.quantity}</Text>
+    );
+
   return (
     <View style={styles.container}>
       <View style={styles.inner}>
@@ -63,15 +71,18 @@ const JobDetails = (props) => {
               />
             </View>
             <View style={styles.actionGroup}>
-              <TextInput
-                style={[
-                  styles.input,
-                  styles.inputWithCheckbox,
-                  {backgroundColor: switches.limit ? '#93959657' : '#fff'},
-                ]}
-                onChangeText={(value) => handleChange(value, 'name')}
-                value={inputs.name}
-              />
+              <View>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.inputWithCheckbox,
+                    {backgroundColor: switches.limit ? '#93959657' : '#fff'},
+                  ]}
+                  onChangeText={(value) => handleChange(value, 'name')}
+                  value={inputs.name}
+                />
+                {renderError()}
+              </View>
               <View style={styles.switchColumn}>
                 <Text style={styles.label}>Unlimited</Text>
                 <Switch

@@ -35,7 +35,6 @@ const JobSitesModal = ({
   data,
   onSubmit,
   onExit,
-  field,
 }) => {
   const [radioSelected, setRadioSelected] = React.useState(null);
   const [search, setSearch] = React.useState('');
@@ -44,7 +43,7 @@ const JobSitesModal = ({
   const error = useSelector((state) => state.JobReducer.error);
 
   React.useEffect(() => {
-    data[0] &&
+    data &&
       setRadioSelected({['projectName']: data[0].projectName, id: data[0].id});
   }, [data]);
 
@@ -104,7 +103,9 @@ const JobSitesModal = ({
             <Icon name="magnify" size={25} color="#000" />
           </View>
           {error ? (
-            <Text style={styles.errorContainer}>{error}</Text>
+            <View style={styles.errorContainer}>
+              <Text>{error}</Text>
+            </View>
           ) : (
             <FlatList
               data={searchData}
@@ -166,7 +167,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#88888824',
   },
   errorContainer: {
-    paddingVertical: 30,
+    flex: 1,
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   closeBtn: {
     alignItems: 'flex-end',

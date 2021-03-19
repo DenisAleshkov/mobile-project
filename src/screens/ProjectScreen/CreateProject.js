@@ -9,18 +9,20 @@ import DropdownAlert from 'react-native-dropdownalert';
 import {StyleSheet, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {setStep} from '../../../store/actions/stepper.action';
-import {setActiveError} from '../../../store/actions/project.action';
 import {
-  ProjectError,
-  ProjectErrors,
+  setActiveError,
+  setCreatedProject,
+} from '../../../store/actions/project.action';
+import {
   ProjectErrorContainer,
   SiteError,
   TrucksError,
   ServerError,
   JobDetailsError,
 } from './services/classes.service';
+import {Navigation} from 'react-native-navigation';
 
-const CreateProject = () => {
+const CreateProject = (props) => {
   const dropDownAlertRef = React.useRef(null);
 
   const getRandomInt = (max) => {
@@ -30,28 +32,42 @@ const CreateProject = () => {
   const dispatch = useDispatch();
 
   const errors = useSelector((state) => state.ProjectReducer.errors);
+  const project = useSelector((state) => state.ProjectReducer);
 
-  const getRandomError = () => {
-    return errors[getRandomInt(errors.length)];
+  const getRandomError = (max) => {
+    return errors[getRandomInt(max)];
   };
 
   const submit = () => {
-    const error = getRandomError();
-    const ProjectErrors = new ProjectErrorContainer(
-      error,
-      [
-        new TrucksError(error),
-        new ServerError(error),
-        new JobDetailsError(error),
-        new SiteError(error),
-      ],
-      setErrorPage,
-    );
-    ProjectErrors.getError();
+    const random = Math.random();
+    if (random < 0.5) {
+      dispatch(setCreatedProject(project));
+      dispatch(setActiveError(null));
+      Navigation.pop(props.componentId);
+      dropDownAlertRef.current.alertWithType(
+        'success',
+        'success',
+        'Project created',
+      );
+    } else {
+      const error = getRandomError(errors.length);
+      const ProjectErrors = new ProjectErrorContainer(
+        [
+          new TrucksError(error),
+          new ServerError(error),
+          new JobDetailsError(error),
+          new SiteError(error),
+        ],
+        setErrorPage,
+      );
+      ProjectErrors.getError();
+      dispatch(setActiveError(error));
+    }
   };
 
   const setErrorPage = (errorStep, message) => {
     dispatch(setStep(errorStep));
+    dispatch(setActiveError());
     dropDownAlertRef.current.alertWithType('error', 'Error', message);
   };
 

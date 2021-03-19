@@ -146,13 +146,7 @@ const HaulersModal = ({modalVisible, handleClose}) => {
   const renderFooter = () => {
     if (!loading) return null;
     return (
-      <View
-        style={{
-          width: Dimensions.get('window').width,
-          paddingVertical: 20,
-          marginTop: 10,
-          marginBottom: 10,
-        }}>
+      <View style={styles.footerContainer}>
         <ActivityIndicator animating color="#848d95" size="large" />
       </View>
     );
@@ -237,6 +231,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     backgroundColor: '#88888824',
+  },
+  footerContainer: {
+    width: Dimensions.get('window').width,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
   list: {
     marginTop: 10,

@@ -2,7 +2,6 @@ import React from 'react';
 import Buttons from './../../Buttons';
 import CheckBox from './../../CheckBox';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Navigation} from 'react-native-navigation';
 import {
   StyleSheet,
   Text,
@@ -55,7 +54,6 @@ const JobSitesModal = ({
   };
 
   const handleSearch = (text) => {
-    console.log('text', text)
     if (text) {
       setSearchData(getSearchData(data, text, 'dropOffSites'));
       setSearch(text);
@@ -68,8 +66,6 @@ const JobSitesModal = ({
   React.useEffect(() => {
     setSearchData(data);
   }, []);
-
- 
 
   const renderItem = (props) => {
     return (
@@ -107,7 +103,9 @@ const JobSitesModal = ({
             <Icon name="magnify" size={25} color="#000" />
           </View>
           {error ? (
-            <Text style={styles.errorContainer}>{error}</Text>
+            <View style={styles.errorContainer}>
+              <Text>{error}</Text>
+            </View>
           ) : (
             <FlatList
               data={searchData}
@@ -179,7 +177,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#88888824',
   },
   errorContainer: {
-    paddingVertical: 30,
+    flex: 1,
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   closeBtn: {
     alignItems: 'flex-end',

@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import Buttons from '../Buttons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MyTrucksModal from './components/MyTrucksModal';
 import DropdownAlert from 'react-native-dropdownalert';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
@@ -9,7 +10,6 @@ import {
   setNextStep,
   setPrevStep,
 } from '../../../../../store/actions/stepper.action';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const MyTrucks = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -29,7 +29,7 @@ const MyTrucks = (props) => {
   const jobs = useSelector((state) => state.JobReducer.jobs);
   const step = useSelector((state) => state.StepperReducer.step);
   const trucks = useSelector((state) => state.ProjectReducer.trucks);
-  const activeError = useSelector(state => state.ProjectReducer.activeError)
+  const activeError = useSelector((state) => state.ProjectReducer.activeError);
 
   const isDisable = () => {
     return trucks;
@@ -65,6 +65,11 @@ const MyTrucks = (props) => {
       </View>
     ));
 
+  const renderError = () =>
+    activeError &&
+    activeError.trucks && (
+      <Text style={{color: 'red'}}>{activeError.trucks}</Text>
+    );
   return (
     <View style={styles.container}>
       <MyTrucksModal
@@ -80,12 +85,14 @@ const MyTrucks = (props) => {
               <Text style={labelStyle(trucks)}>Trucks From Fleet</Text>
               <View style={styles.chosedItems}>{renderTrucks()}</View>
             </View>
+
             <TouchableOpacity
               style={styles.openModal}
               onPress={() => setModalVisible(true)}>
               <Text style={styles.textStyle}>View All</Text>
             </TouchableOpacity>
           </View>
+          {renderError()}
         </View>
         <Buttons
           nextName="next"

@@ -1,41 +1,34 @@
 import React from 'react';
+import ProjectItem from './components/ProjectItem';
 import {Navigation} from 'react-native-navigation';
 import {useDispatch, useSelector} from 'react-redux';
 import {StyleSheet, View, Button} from 'react-native';
 
 const ProjectScreen = (props) => {
-  const dispatch = useDispatch();
+  const createdProjects = useSelector(
+    (state) => state.ProjectReducer.createdProjects,
+  );
 
-  React.useEffect(() => {
-    const componentAppearListener = Navigation.events().registerComponentDidAppearListener(
-      ({componentId: compId}) => {
-        if (props.componentId === compId) {
-          // dispatch(setStep(0));
-        }
-      },
+  const renderProjects = () => {
+    return (
+      createdProjects &&
+      createdProjects.map((item, index) => {
+        return (
+          <ProjectItem
+            key={index}
+            id={index}
+            payload={item.payloads[0]}
+            inputs={item.jobDetails.inputs}
+            switches={item.jobDetails.switches}
+          />
+        );
+      })
     );
-    return () => componentAppearListener.remove();
-  }, []);
-
-  // const renderProjects = () => {
-  //   return (
-  //     createdProjects &&
-  //     createdProjects.map((item, index) => {
-  //       return (
-  //         <ProjectItem
-  //           key={index}
-  //           id={index}
-  //           payload={item.payloads[0]}
-  //           inputs={item.jobDetails.inputs}
-  //           switches={item.jobDetails.switches}
-  //         />
-  //       );
-  //     })
-  //   );
-  // };
+  };
 
   return (
     <View style={styles.container}>
+      {renderProjects()}
       <Button
         title="Create project"
         style={{width: 100}}
@@ -66,7 +59,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: "center"
+    alignItems: 'center',
   },
 });
 
