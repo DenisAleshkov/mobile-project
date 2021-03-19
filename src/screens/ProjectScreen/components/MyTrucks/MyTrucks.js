@@ -1,10 +1,8 @@
 import React, {useState} from 'react';
 import Buttons from '../Buttons';
-import Stepper from '../Stepper';
-import CheckBox from '../CheckBox';
 import MyTrucksModal from './components/MyTrucksModal';
+import DropdownAlert from 'react-native-dropdownalert';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import {Navigation} from 'react-native-navigation';
 import {useDispatch, useSelector} from 'react-redux';
 import {setTrucks} from '../../../../../store/actions/project.action';
 import {
@@ -15,7 +13,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const MyTrucks = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
-
+  const dropDownAlertRef = React.useRef(null);
   const labelStyle = (value) => ({
     position: 'absolute',
     backgroundColor: '#fff',
@@ -31,22 +29,17 @@ const MyTrucks = (props) => {
   const jobs = useSelector((state) => state.JobReducer.jobs);
   const step = useSelector((state) => state.StepperReducer.step);
   const trucks = useSelector((state) => state.ProjectReducer.trucks);
+  const activeError = useSelector(state => state.ProjectReducer.activeError)
 
   const isDisable = () => {
     return trucks;
   };
 
   const setNextPage = () => {
-    Navigation.push(props.componentId, {
-      component: {
-        name: 'Haulers',
-      },
-    });
     dispatch(setNextStep(step));
   };
 
   const setPrevPage = () => {
-    Navigation.pop(props.componentId);
     dispatch(setPrevStep(step));
   };
 
@@ -74,7 +67,6 @@ const MyTrucks = (props) => {
 
   return (
     <View style={styles.container}>
-      <Stepper />
       <MyTrucksModal
         data={jobs}
         modalVisible={modalVisible}
@@ -103,6 +95,7 @@ const MyTrucks = (props) => {
           onSubmit={setNextPage}
         />
       </View>
+      <DropdownAlert ref={dropDownAlertRef} />
     </View>
   );
 };

@@ -42,22 +42,15 @@ const JobDetails = (props) => {
         switches,
       }),
     );
-    Navigation.push(props.componentId, {
-      component: {
-        name: 'JobSites',
-      },
-    });
     dispatch(setNextStep(step));
   };
 
   const setPrevPage = () => {
-    Navigation.pop(props.componentId);
     dispatch(setPrevStep(step));
   };
 
   return (
     <View style={styles.container}>
-      <Stepper />
       <View style={styles.inner}>
         <View style={styles.actionContainer}>
           <Text style={styles.header}>Job Details</Text>

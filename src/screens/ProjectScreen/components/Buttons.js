@@ -3,22 +3,25 @@ import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons/';
 
 const Buttons = (props) => {
-  return (
+  return props.hide ? null : (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={props.onBack}>
-        {props.hasBackIcon && <Icon name="arrow-left" size={30} color="#de8a1d" />}
+        {props.hasBackIcon && (
+          <Icon name="arrow-left" size={30} color="#de8a1d" />
+        )}
         <Text style={styles.backButtonLabel}>{props.backName}</Text>
       </TouchableOpacity>
-      {!props.hideSubmitBtn &&<TouchableOpacity
-        style={[
-          styles.nextButton,
-          {backgroundColor: props.disabled ? '#927f67cf':'#f1b156' },
-        ]}
-        onPress={props.onSubmit}
-        disabled={props.disabled}>
-        <Text style={styles.nextButtonLabel}>{props.nextName}</Text>
-      </TouchableOpacity>
-}
+      {!props.hideSubmitBtn && (
+        <TouchableOpacity
+          style={[
+            styles.nextButton,
+            {backgroundColor: props.disabled ? '#927f67cf' : '#f1b156'},
+          ]}
+          onPress={props.onSubmit}
+          disabled={props.disabled}>
+          <Text style={styles.nextButtonLabel}>{props.nextName}</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

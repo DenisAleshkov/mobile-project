@@ -1,16 +1,19 @@
 import React, {useState} from 'react';
 import Buttons from '../Buttons';
-import Stepper from '../Stepper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import HaulersModal from './components/HaulersModal';
-import {Navigation} from 'react-native-navigation';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {setHaulers} from '../../../../../store/actions/project.action';
-import {setPrevStep} from '../../../../../store/actions/stepper.action';
+import {
+  setHaulers,
+  setCreatedProject,
+  setActiveError,
+} from '../../../../../store/actions/project.action';
+import {setPrevStep, setStep} from '../../../../../store/actions/stepper.action';
 
-const Haulers = (props) => {
+const Haulers = ({submit}) => {
   const [modalVisible, setModalVisible] = useState(false);
+
 
   const labelStyle = (value) => ({
     position: 'absolute',
@@ -24,12 +27,13 @@ const Haulers = (props) => {
 
   const dispatch = useDispatch();
 
-  const state = useSelector(state => state)
+  const project = useSelector((state) => state.ProjectReducer);
   const haulers = useSelector((state) => state.ProjectReducer.haulers);
   const step = useSelector((state) => state.StepperReducer.step);
+  const errors = useSelector(state => state.ProjectReducer.errors)
+
 
   const setPrevPage = () => {
-    Navigation.pop(props.componentId);
     dispatch(setPrevStep(step));
   };
 
@@ -42,9 +46,7 @@ const Haulers = (props) => {
     }
   };
 
-  const submit = () => {
-    console.log('state', state.ProjectReducer)
-  }
+ 
 
   const renderHaulers = () =>
     haulers &&
@@ -61,11 +63,8 @@ const Haulers = (props) => {
       </View>
     ));
 
-
-
   return (
     <View style={styles.container}>
-      <Stepper />
       <HaulersModal
         modalVisible={modalVisible}
         handleClose={() => setModalVisible(!modalVisible)}
@@ -77,7 +76,9 @@ const Haulers = (props) => {
             <TouchableOpacity
               style={styles.inputContainer}
               onPress={() => setModalVisible(true)}>
-              <Text style={labelStyle(haulers && haulers.length)}>Select Haulers</Text>
+              <Text style={labelStyle(haulers && haulers.length)}>
+                Select Haulers
+              </Text>
               <View style={styles.chosedItems}>{renderHaulers()}</View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.inputContainer} onPress={() => {}}>

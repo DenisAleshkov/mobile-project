@@ -1,12 +1,7 @@
 import React from 'react';
 import RadioButton from '../RadioButton';
-import {Navigation} from 'react-native-navigation';
 import {StyleSheet, Text, View, SafeAreaView, FlatList} from 'react-native';
-import Stepper from './../Stepper';
-import {
-  setStep,
-  setNextStep,
-} from './../../../../../store/actions/stepper.action';
+import {setNextStep} from './../../../../../store/actions/stepper.action';
 import {useSelector, useDispatch} from 'react-redux';
 
 const Item = (props) => {
@@ -40,25 +35,10 @@ const Payload = (props) => {
 
   const payloads = useSelector((state) => state.ProjectReducer.payloads);
   const step = useSelector((state) => state.StepperReducer.step);
+
   const dispatch = useDispatch();
 
-  React.useEffect(() => {
-    const componentAppearListener = Navigation.events().registerComponentDidAppearListener(
-      ({componentId: compId}) => {
-        if (props.componentId === compId) {
-          dispatch(setStep(step));
-        }
-      },
-    );
-    return () => componentAppearListener.remove();
-  }, []);
-
   const setNextPage = () => {
-    Navigation.push(props.componentId, {
-      component: {
-        name: 'JobDetails',
-      },
-    });
     dispatch(setNextStep(step));
   };
 
@@ -77,7 +57,6 @@ const Payload = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stepper />
       <Text style={styles.header}>Select Payload</Text>
       <FlatList
         data={payloads}

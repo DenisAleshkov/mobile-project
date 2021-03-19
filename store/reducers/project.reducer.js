@@ -5,6 +5,8 @@ import {
   SET_JOB_DETAILS,
   SET_TRUCKS,
   SET_HAULERS,
+  SET_CREATED_PROJECT,
+  SET_ACTIVE_ERROR
 } from './../constants';
 
 const initialState = {
@@ -21,6 +23,14 @@ const initialState = {
   jobDetails: null,
   trucks: null,
   haulers: null,
+  createdProjects: [],
+  errors: [
+    {quantity: ['quantity is more than left on the store']},
+    {site: ['incorrect site']},
+    {trucks: ['truck 4 is offline']},
+    {message: ['server error']},
+  ],
+  activeError: null,
 };
 
 const StepperReducer = (state = initialState, action) => {
@@ -44,6 +54,14 @@ const StepperReducer = (state = initialState, action) => {
     case SET_TRUCKS:
       return update(state, {
         trucks: {$set: action.payload},
+      });
+    case SET_CREATED_PROJECT:
+      return update(state, {
+        createdProjects: {$push: [action.payload]},
+      });
+    case SET_ACTIVE_ERROR:
+      return update(state, {
+        activeError: {$set: action.payload},
       });
     default:
       return state;

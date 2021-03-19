@@ -15,17 +15,15 @@ import Header from './components/Header';
 import Item from './components/Item';
 
 const JobScreen = (props) => {
-  const [refreshing, setRefreshing] = React.useState(false);
 
   const dispatch = useDispatch();
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
-  console.log('jobs', jobs);
   const error = useSelector((state) => state.JobReducer.error);
-  const hasMore = useSelector((state) => state.JobReducer.hasMore);
   const loading = useSelector((state) => state.LoadingReducer.isLoading);
+  const refreshing = useSelector((state) => state.LoadingReducer.refreshing);
   const page = useSelector((state) => state.JobReducer.page);
-  console.log('page', page);
+
 
   React.useEffect(() => {
     dispatch(getJobs(page));
@@ -36,9 +34,7 @@ const JobScreen = (props) => {
   };
 
   const handleRefresh = () => {
-    setRefreshing(true);
     dispatch(getJobs(1));
-    setRefreshing(false);
   };
 
   const renderItem = (props) => <Item {...props} />;
@@ -55,7 +51,7 @@ const JobScreen = (props) => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text>Something wrong</Text>
+        <Text>{error}</Text>
       </View>
     );
   }

@@ -55,16 +55,10 @@ const JobSites = (props) => {
   };
 
   const setNextPage = () => {
-    Navigation.push(props.componentId, {
-      component: {
-        name: 'MyTrucks',
-      },
-    });
     dispatch(setNextStep(step));
   };
 
   const setPrevPage = () => {
-    Navigation.pop(props.componentId);
     dispatch(setPrevStep(step));
   };
 
@@ -164,7 +158,6 @@ const JobSites = (props) => {
 
   return (
     <View style={styles.container}>
-      <Stepper />
       {renderPickUpModal()}
       {renderDropOffModal()}
       <View style={styles.inner}>

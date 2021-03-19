@@ -1,11 +1,13 @@
 import React from 'react';
 import JobScreen from './src/screens/JobScreen/JobScreen';
 import ProjectScreen from './src/screens/ProjectScreen/ProjectScreen';
+import CreateProject from './src/screens/ProjectScreen/CreateProject';
 import Payload from './src/screens/ProjectScreen/components/Payload/Payload';
 import JobDetails from './src/screens/ProjectScreen/components/JobDetails/JobDetails';
 import JobSites from './src/screens/ProjectScreen/components/JobSites/JobSites';
 import MyTrucks from './src/screens/ProjectScreen/components/MyTrucks/MyTrucks';
 import Haulers from './src/screens/ProjectScreen/components/Haulers/Haulers';
+import StepperContainer from "./src/screens/ProjectScreen/StepperContainer"
 import {Image} from 'react-native';
 import {Navigation} from 'react-native-navigation';
 import {Provider} from 'react-redux';
@@ -14,11 +16,25 @@ import store from './store/store';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 Navigation.registerComponentWithRedux(
+  'CreateProject',
+  () => CreateProject,
+  Provider,
+  store,
+);
+
+Navigation.registerComponentWithRedux(
+  'StepperContainer',
+  () => StepperContainer,
+  Provider,
+  store,
+);
+Navigation.registerComponentWithRedux(
   'Payload',
   () => Payload,
   Provider,
   store,
 );
+
 Navigation.registerComponentWithRedux(
   'MyTrucks',
   () => MyTrucks,
@@ -88,7 +104,6 @@ const bottomTabs = (icons) => ({
               id: 'MYTRUCKS_SCREEN',
               name: 'MyTrucks',
             },
-
             component: {
               id: 'JOBSITES_SCREEN',
               name: 'JobSites',
@@ -100,6 +115,10 @@ const bottomTabs = (icons) => ({
             component: {
               id: 'PAYLOAD_SCREEN',
               name: 'Payload',
+            },
+            component: {
+              id: 'CREATEPROJECT_SCREEN',
+              name: 'CreateProject',
             },
             component: {
               id: 'PROJECT_SCREEN',
@@ -170,7 +189,7 @@ const ProjectScreenTopBarOptions = (icons) => ({
     fontSize: 23,
     fontWeight: '300',
   },
-  backButtom: {
+  backButton: {
     id: 'arrow-left',
     icon: icons.arrowLeft,
   },
