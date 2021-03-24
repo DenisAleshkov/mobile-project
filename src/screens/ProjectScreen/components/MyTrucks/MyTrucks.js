@@ -1,19 +1,17 @@
-import React, {useState} from 'react';
-import Buttons from '../Buttons';
+import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import MyTrucksModal from './components/MyTrucksModal';
 import DropdownAlert from 'react-native-dropdownalert';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {setTrucks} from '../../../../../store/actions/project.action';
-import {
-  setNextStep,
-  setPrevStep,
-} from '../../../../../store/actions/stepper.action';
+import {Navigation} from 'react-native-navigation';
+import {change} from 'redux-form';
 
 const MyTrucks = (props) => {
-  const [modalVisible, setModalVisible] = useState(false);
+  const {error, form} = props;
+
   const dropDownAlertRef = React.useRef(null);
+
   const labelStyle = (value) => ({
     position: 'absolute',
     backgroundColor: '#fff',
@@ -26,30 +24,47 @@ const MyTrucks = (props) => {
 
   const dispatch = useDispatch();
 
-  const jobs = useSelector((state) => state.JobReducer.jobs);
-  const step = useSelector((state) => state.StepperReducer.step);
   const trucks = useSelector((state) => state.ProjectReducer.trucks);
-  const activeError = useSelector((state) => state.ProjectReducer.activeError);
-
-  const isDisable = () => {
-    return trucks;
-  };
-
-  const setNextPage = () => {
-    dispatch(setNextStep(step));
-  };
-
-  const setPrevPage = () => {
-    dispatch(setPrevStep(step));
-  };
 
   const deleteItem = (currentId) => {
     const newTrucks = trucks.filter((truck) => truck.id !== currentId);
     if (newTrucks.length === 0) {
       dispatch(setTrucks(null));
+      changeTrucks(null)
     } else {
       dispatch(setTrucks(newTrucks));
+      changeTrucks(newTrucks)
     }
+  };
+
+  const changeTrucks = (value) => {
+    dispatch(change(form, 'trucks', value));
+  };
+
+  const renderError = () =>
+    error && (
+      <View style={{width: '100%', alignItems: 'flex-start'}}>
+        <Text style={{color: 'red'}}>{error}</Text>
+      </View>
+    );
+
+  const showModal = () => {
+    Navigation.showOverlay({
+      component: {
+        name: 'MyTrucksModal',
+        passProps: {
+          changeTrucks
+        },
+        options: {
+          layout: {
+            componentBackgroundColor: 'transparent',
+          },
+          overlay: {
+            interceptTouchOutside: true,
+          },
+        },
+      },
+    });
   };
 
   const renderTrucks = () =>
@@ -64,19 +79,8 @@ const MyTrucks = (props) => {
         </TouchableOpacity>
       </View>
     ));
-
-  const renderError = () =>
-    activeError &&
-    activeError.trucks && (
-      <Text style={{color: 'red'}}>{activeError.trucks}</Text>
-    );
   return (
     <View style={styles.container}>
-      <MyTrucksModal
-        data={jobs}
-        modalVisible={modalVisible}
-        handleClose={() => setModalVisible(!modalVisible)}
-      />
       <View style={styles.inner}>
         <View style={styles.actionContainer}>
           <Text style={styles.header}>Trucks Assigned</Text>
@@ -85,22 +89,12 @@ const MyTrucks = (props) => {
               <Text style={labelStyle(trucks)}>Trucks From Fleet</Text>
               <View style={styles.chosedItems}>{renderTrucks()}</View>
             </View>
-
-            <TouchableOpacity
-              style={styles.openModal}
-              onPress={() => setModalVisible(true)}>
+            {renderError()}
+            <TouchableOpacity style={styles.openModal} onPress={showModal}>
               <Text style={styles.textStyle}>View All</Text>
             </TouchableOpacity>
           </View>
-          {renderError()}
         </View>
-        <Buttons
-          nextName="next"
-          backName="back"
-          disabled={!isDisable()}
-          onBack={setPrevPage}
-          onSubmit={setNextPage}
-        />
       </View>
       <DropdownAlert ref={dropDownAlertRef} />
     </View>

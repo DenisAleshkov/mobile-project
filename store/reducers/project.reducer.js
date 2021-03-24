@@ -2,11 +2,9 @@ import update from 'immutability-helper';
 import {
   SET_PICKUP_SITES,
   SET_DROPOF_SITES,
-  SET_JOB_DETAILS,
   SET_TRUCKS,
   SET_HAULERS,
   SET_CREATED_PROJECT,
-  SET_ACTIVE_ERROR
 } from './../constants';
 
 const initialState = {
@@ -26,25 +24,19 @@ const initialState = {
   ],
   pickupSites: null,
   dropofSites: null,
-  jobDetails: null,
   trucks: null,
   haulers: null,
-  createdProjects: [],
   errors: [
     {quantity: ['quantity is more than left on the store']},
     {site: ['incorrect site']},
     {trucks: ['truck 4 is offline']},
     {message: ['server error']},
   ],
-  activeError: null,
+  createdProject: [],
 };
 
 const StepperReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_JOB_DETAILS:
-      return update(state, {
-        jobDetails: {$set: action.payload},
-      });
     case SET_HAULERS:
       return update(state, {
         haulers: {$set: action.payload},
@@ -63,11 +55,7 @@ const StepperReducer = (state = initialState, action) => {
       });
     case SET_CREATED_PROJECT:
       return update(state, {
-        createdProjects: {$push: [action.payload]},
-      });
-    case SET_ACTIVE_ERROR:
-      return update(state, {
-        activeError: {$set: action.payload},
+        createdProject: {$push: action.payload},
       });
     default:
       return state;

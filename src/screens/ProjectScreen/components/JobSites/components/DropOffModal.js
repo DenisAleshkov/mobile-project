@@ -13,98 +13,109 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {getSearchData} from '../../../services/functions.service';
+import {Navigation} from 'react-native-navigation';
+import {Field, reduxForm} from 'redux-form';
+import {setDropOfSites} from '../../../../../../store/actions/project.action';
+
+const renderCheckBox = ({input: {value, onChange}, ...props}) => {
+  return (
+    <CheckBox
+      handleChecked={() => {
+        onChange(() => {
+          const isChecked =
+            value && value.filter((item) => item.id === props.item.id).length;
+          if (!isChecked) {
+            return [
+              ...value,
+              {id: props.item.id, dropOffSites: props.item.dropOffSites},
+            ];
+          } else {
+            return value.filter((item) => item.id !== props.item.id);
+          }
+        });
+      }}
+      currentId={props.item.id}
+      checked={value}
+    />
+  );
+};
 
 const Item = (props) => {
   const {item} = props;
   return (
     <View style={styles.modalItem}>
-      <CheckBox
-        checked={props.checked}
-        currentId={props.item.id}
-        handleChecked={props.handleChecked}
+      <Field
+        name="dropOffSites"
+        component={renderCheckBox}
+        type="checkbox"
+        value={item}
+        props={{
+          item: item,
+        }}
       />
       <Text style={styles.modalItemLabel}>{item.dropOffSites}</Text>
     </View>
   );
 };
 
-const JobSitesModal = ({
-  modalVisible,
-  onRequestClose,
-  data,
-  onSubmit,
-  onExit,
-}) => {
-  const [checked, setChecked] = React.useState([]);
+const JobSitesModal = (props) => {
+  const {handleSubmit, pristine, submitting, changeDropOffSites} = props;
+
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
 
-  const error = useSelector((state) => state.JobReducer.error);
+  const jobs = useSelector((state) => state.JobReducer.jobs);
 
   const dispatch = useDispatch();
 
-  const handleChecked = (item) => {
-    const isCheck = checked.filter((check) => check.id === item.id).length;
-    if (!isCheck) {
-      setChecked([...checked, {id: item.id, dropOffSites: item.dropOffSites}]);
-    } else {
-      const newTrucks = checked.filter((check) => check.id !== item.id);
-      setChecked(newTrucks);
-    }
-  };
-
   const handleSearch = (text) => {
     if (text) {
-      setSearchData(getSearchData(data, text, 'dropOffSites'));
+      setSearchData(getSearchData(jobs, text, 'dropOffSites'));
       setSearch(text);
     } else {
-      setSearchData(data);
+      setSearchData(jobs);
       setSearch(text);
     }
   };
 
   React.useEffect(() => {
-    setSearchData(data);
+    setSearchData(jobs);
   }, []);
 
-  const renderItem = (props) => {
-    return (
-      <Item
-        {...props}
-        checked={checked}
-        currentId={props.item.id}
-        handleChecked={() => handleChecked(props.item)}
-      />
-    );
+  const cancel = () => {
+    Navigation.dismissOverlay(props.componentId);
   };
 
-  const onSubmitHandler = () => {
-    dispatch(onSubmit(checked));
-    onExit();
+  const renderItem = (props) => {
+    return <Item {...props} />;
+  };
+
+  const submit = (values) => {
+    const {dropOffSites} = values;
+    dispatch(setDropOfSites(dropOffSites));
+    changeDropOffSites(dropOffSites);
+    cancel();
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={onRequestClose}>
+    <Modal animationType="fade" transparent={true} onRequestClose={cancel}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <TouchableOpacity style={styles.closeBtn} onPress={onExit}>
+          <TouchableOpacity style={styles.closeBtn} onPress={cancel}>
             <Icon name="close" size={25} />
           </TouchableOpacity>
+          <Text style={styles.header}>Select Drop-Off Site</Text>
           <View style={styles.searchContainer}>
             <TextInput
-              placeholder="Select Pick-Up Site"
+              placeholder="Select Drop-Off Site"
               value={search}
               onChangeText={(text) => handleSearch(text)}
             />
             <Icon name="magnify" size={25} color="#000" />
           </View>
-          {error ? (
+          {jobs && jobs.length === 0 ? (
             <View style={styles.errorContainer}>
-              <Text>{error}</Text>
+              <Text>data not found</Text>
             </View>
           ) : (
             <FlatList
@@ -117,11 +128,9 @@ const JobSitesModal = ({
           <Buttons
             backName="cancel"
             nextName="continue"
-            onBack={() => {
-              setChecked([]);
-              onExit();
-            }}
-            onSubmit={onSubmitHandler}
+            onBack={cancel}
+            disabled={pristine || submitting}
+            onSubmit={handleSubmit(submit)}
           />
         </View>
       </View>
@@ -188,4 +197,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default JobSitesModal;
+export default reduxForm({
+  form: 'JobSitesModal',
+})(JobSitesModal);

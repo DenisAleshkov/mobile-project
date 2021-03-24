@@ -10,40 +10,58 @@ import {
   View,
   FlatList,
   Dimensions,
-  ActivityIndicator,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {setHaulers} from './../../../../../../store/actions/project.action';
-import {getJobs} from './../../../../../../store/actions/job.action';
+import {useDispatch} from 'react-redux';
 import {getSearchData} from '../../../services/functions.service';
+import {Navigation} from 'react-native-navigation';
+import {Field, reduxForm} from 'redux-form';
+import {setHaulers} from '../../../../../../store/actions/project.action';
 
-const Item = (props) => {
+const renderHauler = ({input: {onChange, value}, ...props}) => {
   const {item} = props;
-  const [value, setValue] = React.useState(0);
-  const index = props.checked.map((item) => item.id).indexOf(item.id);
-
-  React.useEffect(() => {
-    props.checked[index] && setValue(props.checked[index].data.count);
-  }, [props.checked[index]]);
-
+  const count = new Map(value).get(item.id)?.count || 0;
   return (
     <View style={styles.item}>
       <View style={styles.itemContent}>
-        <Text style={styles.haulersName}>{item.dropOffSites}</Text>
+        <Text style={styles.haulersName}>134</Text>
         <View style={styles.action}>
           <TouchableOpacity
-            disabled={value === 0}
+            disabled={count === 0}
             style={styles.counter}
-            onPress={props.handleDelete}>
+            onPress={() =>
+              onChange(() => {
+                const hauler = new Map(value).get(item.id);
+                if (hauler) {
+                  return new Map(value).set(item.id, {
+                    projectName: item.projectName,
+                    count: hauler.count === 0 ? 0 : hauler.count - 1,
+                  });
+                }
+              })
+            }>
             <Text style={styles.counterLabel}>-</Text>
           </TouchableOpacity>
           <View style={styles.label}>
-            <Text style={styles.labelText}>{value}</Text>
+            <Text style={styles.labelText}>{count}</Text>
           </View>
           <TouchableOpacity
-            disabled={value >= 10}
+            disabled={count >= 10}
             style={styles.counter}
-            onPress={props.handleAdd}>
+            onPress={() => {
+              onChange(() => {
+                const hauler = new Map(value).get(item.id);
+                if (hauler) {
+                  return new Map(value).set(item.id, {
+                    projectName: item.projectName,
+                    count: hauler.count + 1,
+                  });
+                }
+                return new Map(value).set(item.id, {
+                  projectName: item.projectName,
+                  count: 1,
+                });
+              });
+            }}>
             <Text style={styles.counterLabel}>+</Text>
           </TouchableOpacity>
         </View>
@@ -52,16 +70,17 @@ const Item = (props) => {
   );
 };
 
-const HaulersModal = ({modalVisible, handleClose}) => {
-  const [checked, setChecked] = React.useState(new Map());
+const Item = (props) => {
+  const {item} = props;
+  return <Field name="haulers" props={{item}} component={renderHauler} />;
+};
+
+const HaulersModal = (props) => {
+  const {handleSubmit, pristine, submitting, changeHaulers} = props;
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
 
-  const error = useSelector((state) => state.JobReducer.error);
   const jobs = useSelector((state) => state.JobReducer.jobs);
-  const page = useSelector((state) => state.JobReducer.page);
-  const loading = useSelector((state) => state.LoadingReducer.loading);
-  const refreshing = useSelector((state) => state.LoadingReducer.refreshing);
 
   const dispatch = useDispatch();
 
@@ -69,39 +88,9 @@ const HaulersModal = ({modalVisible, handleClose}) => {
     setSearchData(jobs);
   }, []);
 
-  const handleAdd = (props) => {
-    const {item} = props;
-    setChecked((prevState) => {
-      const hauler = new Map(prevState).get(item.id);
-      if (hauler) {
-        return new Map(prevState).set(item.id, {
-          dropOffSites: item.dropOffSites,
-          count: hauler.count + 1,
-        });
-      }
-      return new Map(prevState).set(item.id, {
-        dropOffSites: item.dropOffSites,
-        count: 1,
-      });
-    });
-  };
-
-  const handleDelete = (props) => {
-    const {item} = props;
-    setChecked((prevState) => {
-      const hauler = new Map(prevState).get(item.id);
-      if (hauler) {
-        return new Map(prevState).set(item.id, {
-          dropOffSites: item.dropOffSites,
-          count: hauler.count === 0 ? 0 : hauler.count - 1,
-        });
-      }
-    });
-  };
-
   const handleSearch = (text) => {
     if (text) {
-      setSearchData(getSearchData(jobs, text, 'dropOffSites'));
+      setSearchData(getSearchData(jobs, text, 'projectName'));
       setSearch(text);
     } else {
       setSearchData(jobs);
@@ -109,58 +98,30 @@ const HaulersModal = ({modalVisible, handleClose}) => {
     }
   };
 
-  const onSubmit = () => {
-    const filterItems = Array.from(checked, ([id, data]) => ({
+  const submit = (values) => {
+    const {haulers} = values;
+    const filterHaulers = Array.from(haulers, ([id, data]) => ({
       id,
-      data,
-    })).filter((item) => item.data.count !== 0);
-    dispatch(setHaulers(filterItems));
-    handleClose();
+      ...data,
+    })).filter((item) => item.count !== 0);
+    dispatch(setHaulers(filterHaulers));
+    changeHaulers(filterHaulers);
+    clear();
   };
 
-  const onClear = () => {
-    setChecked(new Map());
-    handleClose();
+  const clear = () => {
+    Navigation.dismissOverlay(props.componentId);
   };
 
   const renderItem = (props) => {
-    return (
-      <Item
-        {...props}
-        checked={Array.from(checked, ([id, data]) => ({id, data}))}
-        currentId={props.item.id}
-        handleAdd={() => handleAdd(props)}
-        handleDelete={() => handleDelete(props)}
-      />
-    );
-  };
-
-  const handleRefresh = () => {
-    dispatch(getJobs(1));
-  };
-
-  const handleLoad = () => {
-    dispatch(getJobs(page));
-  };
-
-  const renderFooter = () => {
-    if (!loading) return null;
-    return (
-      <View style={styles.footerContainer}>
-        <ActivityIndicator animating color="#848d95" size="large" />
-      </View>
-    );
+    return <Item {...props} />;
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={handleClose}>
+    <Modal animationType="fade" transparent={true} onRequestClose={clear}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <TouchableOpacity style={styles.closeBtn} onPress={handleClose}>
+          <TouchableOpacity style={styles.closeBtn} onPress={clear}>
             <Icon name="close" size={25} />
           </TouchableOpacity>
           <Text>Select Haulers</Text>
@@ -172,28 +133,18 @@ const HaulersModal = ({modalVisible, handleClose}) => {
             />
             <Icon name="magnify" size={25} color="#000" />
           </View>
-          {error ? (
-            <View style={styles.errorContainer}>
-              <Text>{error}</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={searchData}
-              renderItem={renderItem}
-              refreshing={refreshing}
-              onEndReached={handleLoad}
-              onRefresh={handleRefresh}
-              ListFooterComponent={renderFooter}
-              onEndReachedThreshold={0.5}
-              keyExtractor={(item) => item.id.toString()}
-              style={styles.list}
-            />
-          )}
+          <FlatList
+            data={searchData}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+            style={styles.list}
+          />
           <Buttons
             backName="clear"
             nextName="done"
-            onBack={onClear}
-            onSubmit={onSubmit}
+            onBack={clear}
+            disabled={pristine || submitting}
+            onSubmit={handleSubmit(submit)}
           />
         </View>
       </View>
@@ -245,8 +196,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 30,
   },
   loadingContainer: {},
   item: {
@@ -300,4 +252,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HaulersModal;
+export default reduxForm({
+  form: 'HaulersModal',
+})(HaulersModal);

@@ -13,87 +13,83 @@ import {
 } from 'react-native';
 import {getSearchData} from '../../../services/functions.service';
 import {useDispatch, useSelector} from 'react-redux';
+import {Navigation} from 'react-native-navigation';
+import {Field, reduxForm} from 'redux-form';
+import {setPickUpSites} from '../../../../../../store/actions/project.action';
+
+const renderRadio = ({input: {checked, value, onChange}}) => {
+  return (
+    <RadioButton
+      radioPressHandler={() => onChange(value)}
+      borderColor="#88888824"
+      value={value}
+      isSelected={checked}
+    />
+  );
+};
 
 const Item = (props) => {
   const {item} = props;
   return (
     <View style={styles.modalItem}>
-      <RadioButton
-        radioPressHandler={props.radioPressHandler}
-        selectedId={props.radioSelected}
-        currentId={item.id}
-        borderColor="#88888824"
+      <Field
+        name="pickUpSites"
+        component={renderRadio}
+        type="radio"
+        value={item}
       />
       <Text>{item.projectName}</Text>
     </View>
   );
 };
 
-const JobSitesModal = ({
-  modalVisible,
-  onRequestClose,
-  data,
-  onSubmit,
-  onExit,
-}) => {
-  const [radioSelected, setRadioSelected] = React.useState(null);
+const JobSitesModal = (props) => {
+  const {handleSubmit, pristine, submitting, changePickUpSites} = props;
+
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
 
-  const error = useSelector((state) => state.JobReducer.error);
+  const jobs = useSelector((state) => state.JobReducer.jobs);
 
   React.useEffect(() => {
-    data &&
-      setRadioSelected({['projectName']: data[0].projectName, id: data[0].id});
-  }, [data]);
-
-  React.useEffect(() => {
-    setSearchData(data);
+    setSearchData(jobs);
   }, []);
 
   const dispatch = useDispatch();
 
   const handleSearch = (text) => {
     if (text) {
-      setSearchData(getSearchData(data, text, 'projectName'));
+      setSearchData(getSearchData(jobs, text, 'projectName'));
       setSearch(text);
     } else {
-      setSearchData(data);
+      setSearchData(jobs);
       setSearch(text);
     }
   };
 
-  const renderItem = (props) => {
-    return (
-      <Item
-        radioPressHandler={() => {
-          setRadioSelected({
-            ['projectName']: props.item.projectName,
-            id: props.item.id,
-          });
-        }}
-        radioSelected={radioSelected.id}
-        {...props}
-      />
-    );
+  const cancel = () => {
+    Navigation.dismissOverlay(props.componentId);
   };
 
-  const onSubmitHandler = () => {
-    dispatch(onSubmit(radioSelected));
-    onExit();
+  const renderItem = (props) => {
+    return <Item {...props} />;
+  };
+
+  const submit = (values) => {
+    const {pickUpSites} = values;
+    dispatch(setPickUpSites(pickUpSites));
+    changePickUpSites(pickUpSites);
+    cancel();
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={onRequestClose}>
+    <Modal animationType="fade" transparent={true} onRequestClose={cancel}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <TouchableOpacity style={styles.closeBtn} onPress={onExit}>
+          <TouchableOpacity style={styles.closeBtn} onPress={cancel}>
             <Icon name="close" size={25} />
           </TouchableOpacity>
+          <Text style={styles.header}>Select Pick-Up Site</Text>
           <View style={styles.searchContainer}>
             <TextInput
               placeholder="Select Pick-Up Site"
@@ -102,9 +98,9 @@ const JobSitesModal = ({
             />
             <Icon name="magnify" size={25} color="#000" />
           </View>
-          {error ? (
+          {jobs && jobs.length === 0 ? (
             <View style={styles.errorContainer}>
-              <Text>{error}</Text>
+              <Text>data not found</Text>
             </View>
           ) : (
             <FlatList
@@ -117,8 +113,9 @@ const JobSitesModal = ({
           <Buttons
             backName="cancel"
             nextName="continue"
-            onBack={onExit}
-            onSubmit={onSubmitHandler}
+            onBack={cancel}
+            disabled={pristine || submitting}
+            onSubmit={handleSubmit(submit)}
           />
         </View>
       </View>
@@ -178,4 +175,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default JobSitesModal;
+export default reduxForm({
+  form: 'JobSitesModal',
+})(JobSitesModal);

@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import JobScreen from './src/screens/JobScreen/JobScreen';
 import ProjectScreen from './src/screens/ProjectScreen/ProjectScreen';
 import CreateProject from './src/screens/ProjectScreen/CreateProject';
@@ -7,13 +8,42 @@ import JobDetails from './src/screens/ProjectScreen/components/JobDetails/JobDet
 import JobSites from './src/screens/ProjectScreen/components/JobSites/JobSites';
 import MyTrucks from './src/screens/ProjectScreen/components/MyTrucks/MyTrucks';
 import Haulers from './src/screens/ProjectScreen/components/Haulers/Haulers';
-import StepperContainer from "./src/screens/ProjectScreen/StepperContainer"
-import {Image} from 'react-native';
+import StepperContainer from './src/screens/ProjectScreen/StepperContainer';
+import DropOffModal from './src/screens/ProjectScreen/components/JobSites/components/DropOffModal';
+import PickUpModal from './src/screens/ProjectScreen/components/JobSites/components/PickUpModal';
+import HaulersModal from './src/screens/ProjectScreen/components/Haulers/components/HaulersModal';
+import MyTrucksModal from './src/screens/ProjectScreen/components/MyTrucks/components/MyTrucksModal';
 import {Navigation} from 'react-native-navigation';
 import {Provider} from 'react-redux';
 import store from './store/store';
 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+Navigation.registerComponentWithRedux(
+  'MyTrucksModal',
+  () => MyTrucksModal,
+  Provider,
+  store,
+);
+
+Navigation.registerComponentWithRedux(
+  'HaulersModal',
+  () => HaulersModal,
+  Provider,
+  store,
+);
+
+Navigation.registerComponentWithRedux(
+  'DropOffModal',
+  () => DropOffModal,
+  Provider,
+  store,
+);
+
+Navigation.registerComponentWithRedux(
+  'PickUpModal',
+  () => PickUpModal,
+  Provider,
+  store,
+);
 
 Navigation.registerComponentWithRedux(
   'CreateProject',
@@ -76,17 +106,6 @@ Navigation.registerComponentWithRedux(
   Provider,
   store,
 );
-
-Navigation.registerComponent('Logo', () => Logo);
-
-const Logo = () => {
-  return (
-    <Image
-      source={require('./src/assets/logo.jpeg')}
-      style={{width: 40, height: 40}}
-    />
-  );
-};
 
 const bottomTabs = (icons) => ({
   id: 'BOTTOM_TABS_LAYOUT',
@@ -162,9 +181,7 @@ const JobScreenBottoTabOptions = (icons) => ({
 const JobScreenTopBarOptions = (icons) => ({
   title: {
     alignment: 'center',
-    component: {
-      name: 'Logo',
-    },
+    text: 'Logo',
   },
   rightButtons: [
     {

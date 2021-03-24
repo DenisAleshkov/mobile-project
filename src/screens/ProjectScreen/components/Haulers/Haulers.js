@@ -1,19 +1,13 @@
 import React, {useState} from 'react';
-import Buttons from '../Buttons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import HaulersModal from './components/HaulersModal';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {
-  setHaulers,
-  setCreatedProject,
-  setActiveError,
-} from '../../../../../store/actions/project.action';
-import {setPrevStep, setStep} from '../../../../../store/actions/stepper.action';
+import {setHaulers} from '../../../../../store/actions/project.action';
+import {Navigation} from 'react-native-navigation';
+import {change} from 'redux-form';
 
-const Haulers = ({submit}) => {
-  const [modalVisible, setModalVisible] = useState(false);
-
+const Haulers = (props) => {
+  const {form} = props;
 
   const labelStyle = (value) => ({
     position: 'absolute',
@@ -27,33 +21,46 @@ const Haulers = ({submit}) => {
 
   const dispatch = useDispatch();
 
-  const project = useSelector((state) => state.ProjectReducer);
   const haulers = useSelector((state) => state.ProjectReducer.haulers);
-  const step = useSelector((state) => state.StepperReducer.step);
-  const errors = useSelector(state => state.ProjectReducer.errors)
-
-
-  const setPrevPage = () => {
-    dispatch(setPrevStep(step));
-  };
 
   const deleteItem = (currentId) => {
     const newHaulers = haulers.filter((hauler) => hauler.id !== currentId);
     if (newHaulers.length === 0) {
       dispatch(setHaulers(null));
+      changeHaulers(null)
     } else {
       dispatch(setHaulers(newHaulers));
+      changeHaulers(newHaulers)
     }
   };
 
- 
+  const showModal = () => {
+    Navigation.showOverlay({
+      component: {
+        name: 'HaulersModal',
+        passProps: {
+          changeHaulers,
+        },
+        options: {
+          layout: {
+            componentBackgroundColor: 'transparent',
+          },
+          overlay: {
+            interceptTouchOutside: true,
+          },
+        },
+      },
+    });
+  };
+
+  const changeHaulers = (value) => dispatch(change(form, 'haulers', value));
 
   const renderHaulers = () =>
     haulers &&
     haulers.map((item) => (
       <View style={styles.choosedItem} key={item.id}>
         <Text style={styles.choosedItemName}>
-          {item.data.dropOffSites} - {item.data.count} Req.
+          {item.projectName} - {item.count} Req.
         </Text>
         <TouchableOpacity
           style={styles.choosedItemcons}
@@ -65,17 +72,11 @@ const Haulers = ({submit}) => {
 
   return (
     <View style={styles.container}>
-      <HaulersModal
-        modalVisible={modalVisible}
-        handleClose={() => setModalVisible(!modalVisible)}
-      />
       <View style={styles.inner}>
         <View style={styles.actionContainer}>
           <Text style={styles.header}>Select Haulers (Optional)</Text>
           <View style={styles.action}>
-            <TouchableOpacity
-              style={styles.inputContainer}
-              onPress={() => setModalVisible(true)}>
+            <TouchableOpacity style={styles.inputContainer} onPress={showModal}>
               <Text style={labelStyle(haulers && haulers.length)}>
                 Select Haulers
               </Text>
@@ -86,13 +87,6 @@ const Haulers = ({submit}) => {
             </TouchableOpacity>
           </View>
         </View>
-        <Buttons
-          hasBackIcon={true}
-          nextName="done"
-          backName="back"
-          onBack={setPrevPage}
-          onSubmit={submit}
-        />
       </View>
     </View>
   );

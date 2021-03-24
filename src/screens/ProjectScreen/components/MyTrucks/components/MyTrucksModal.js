@@ -2,19 +2,60 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Buttons from '../../Buttons';
 import CheckBox from '../../CheckBox';
-import {StyleSheet, Modal, TextInput, Text, View, FlatList} from 'react-native';
-import {useDispatch} from 'react-redux';
+import {
+  StyleSheet,
+  Modal,
+  TextInput,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 import {setTrucks} from './../../../../../../store/actions/project.action';
 import {getSearchData} from '../../../services/functions.service';
+import {Navigation} from 'react-native-navigation';
+import {Field, reduxForm} from 'redux-form';
+
+const renderCheckBox = ({input: {value, onChange}, ...props}) => {
+  return (
+    <CheckBox
+      handleChecked={() => onChange(props.checkBoxHandler(value))}
+      currentId={props.item.id}
+      checked={value}
+    />
+  );
+};
+
+const renderMainCheckBox = ({input: {value, onChange}, ...props}) => {
+  return <CheckBox />;
+};
 
 const Item = (props) => {
   const {item} = props;
+
+  const checkBoxHandler = (value) => {
+    const isChecked =
+      value && value.filter((item) => item.id === props.item.id).length;
+    if (!isChecked) {
+      return [
+        ...value,
+        {id: props.item.id, companyName: props.item.companyName},
+      ];
+    }
+    return value.filter((item) => item.id !== props.item.id);
+  };
+
   return (
     <View style={styles.item}>
-      <CheckBox
-        checked={props.checked}
-        currentId={props.currentId}
-        handleChecked={props.handleChecked}
+      <Field
+        name="trucks"
+        component={renderCheckBox}
+        type="checkbox"
+        props={{
+          item,
+          checkBoxHandler,
+        }}
       />
       <View style={styles.textInfo}>
         <Text style={{fontSize: 20}}>{item.companyName}</Text>
@@ -24,22 +65,14 @@ const Item = (props) => {
   );
 };
 
-const MyTrucksModal = ({modalVisible, handleClose, data}) => {
-  const [checked, setChecked] = React.useState([]);
-  const [checkedAll, setCheckedAll] = React.useState(false);
+const MyTrucksModal = (props) => {
+  const {handleSubmit, pristine, submitting, changeTrucks} = props;
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
-  const dispatch = useDispatch();
 
-  const handleChecked = (item) => {
-    const isCheck = checked.filter((check) => check.id === item.id).length;
-    if (!isCheck) {
-      setChecked([...checked, {id: item.id, companyName: item.companyName}]);
-    } else {
-      const newTrucks = checked.filter((check) => check.id !== item.id);
-      setChecked(newTrucks);
-    }
-  };
+  const jobs = useSelector((state) => state.JobReducer.jobs);
+
+  const dispatch = useDispatch();
 
   const handleSearch = (text) => {
     if (text) {
@@ -52,74 +85,63 @@ const MyTrucksModal = ({modalVisible, handleClose, data}) => {
   };
 
   React.useEffect(() => {
-    setSearchData(data);
+    setSearchData(jobs);
   }, []);
 
-  const onSubmit = () => {
-    dispatch(setTrucks(checked));
-    handleClose();
-  };
-
-  const onClear = () => {
-    dispatch(setTrucks(null));
-    setChecked([]);
-    setCheckedAll(false);
-    handleClose();
-  };
-
-  const chooseAll = () => {
-    if (!checkedAll) {
-      setChecked(data);
-    } else {
-      setChecked([]);
-    }
-    setCheckedAll(!checkedAll);
-  };
-
   const renderItem = (props) => {
-    return (
-      <Item
-        {...props}
-        checked={checked}
-        currentId={props.item.id}
-        handleChecked={() => handleChecked(props.item)}
-      />
-    );
+    return <Item {...props} jobs={jobs} />;
+  };
+
+  const clear = () => {
+    Navigation.dismissOverlay(props.componentId);
+  };
+
+  const submit = (values) => {
+    const {trucks} = values;
+    dispatch(setTrucks(trucks));
+    changeTrucks(trucks);
+    clear();
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={handleClose}>
+    <Modal animationType="fade" transparent={true} onRequestClose={clear}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
+          <TouchableOpacity style={styles.closeBtn} onPress={clear}>
+            <Icon name="close" size={25} />
+          </TouchableOpacity>
           <Text>Trucks from Fleet</Text>
           <View style={styles.searchContainer}>
             <TextInput
-              placeholder="Select Pick-Up Site"
+              placeholder="Select Trucks from fleet"
               value={search}
               onChangeText={(text) => handleSearch(text)}
             />
             <Icon name="magnify" size={25} color="#000" />
           </View>
           <View style={styles.changeAllItems}>
-            <CheckBox handleChecked={chooseAll} isCheckedAll={checkedAll} />
+            <Field name="chooseAll" component={renderMainCheckBox} />
             <View style={styles.textInfo}>
               <Text style={{fontSize: 20}}>Use All My Trucks</Text>
             </View>
           </View>
-          <FlatList
-            data={searchData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
-          />
+          {jobs && jobs.length === 0 ? (
+            <View style={styles.errorContainer}>
+              <Text>data not found</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={searchData}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
+            />
+          )}
           <Buttons
             backName="clear"
             nextName="done"
-            onBack={onClear}
-            onSubmit={onSubmit}
+            onBack={clear}
+            disabled={pristine || submitting}
+            onSubmit={handleSubmit(submit)}
           />
         </View>
       </View>
@@ -133,7 +155,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalView: {
-    height: 450,
+    height: 480,
     margin: 20,
     backgroundColor: 'white',
     borderRadius: 20,
@@ -178,6 +200,18 @@ const styles = StyleSheet.create({
   textInfo: {
     marginLeft: 15,
   },
+  closeBtn: {
+    alignItems: 'flex-end',
+    marginBottom: 10,
+  },
+  errorContainer: {
+    flex: 1,
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
-export default MyTrucksModal;
+export default reduxForm({
+  form: 'MyTrucksModal',
+})(MyTrucksModal);

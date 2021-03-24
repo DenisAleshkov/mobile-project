@@ -3,17 +3,35 @@ import RadioButton from '../RadioButton';
 import {StyleSheet, Text, View, SafeAreaView, FlatList} from 'react-native';
 import {setNextStep} from './../../../../../store/actions/stepper.action';
 import {useSelector, useDispatch} from 'react-redux';
+import {Field} from 'redux-form';
+
+const renderRadio = ({input: {checked, value, onChange}, ...props}) => {
+  return (
+    <RadioButton
+      radioPressHandler={() => {
+        onChange(value);
+        props.setNextPage();
+      }}
+      borderColor="#88888824"
+      value={value}
+      isSelected={checked}
+    />
+  );
+};
 
 const Item = (props) => {
   const {item} = props;
   return (
     <View style={styles.item}>
       <View style={styles.leftPart}>
-        <RadioButton
-          radioPressHandler={props.radioPressHandler}
-          selectedId={props.radioSelected}
-          currentId={item.id}
-          borderColor="#88888824"
+        <Field
+          name="payload"
+          component={renderRadio}
+          type="radio"
+          value={item}
+          props={{
+            setNextPage: props.setNextPage,
+          }}
         />
         <View style={styles.textInfo}>
           <Text style={styles.jobNumber}>{`#${item.id}`}</Text>
@@ -31,28 +49,13 @@ const Item = (props) => {
 };
 
 const Payload = (props) => {
-  const [radioSelected, setRadioSelected] = React.useState(null);
-
   const payloads = useSelector((state) => state.ProjectReducer.payloads);
   const step = useSelector((state) => state.StepperReducer.step);
 
   const dispatch = useDispatch();
 
-  const setNextPage = () => {
-    dispatch(setNextStep(step));
-  };
-
   const renderItem = (props) => {
-    return (
-      <Item
-        radioSelected={radioSelected}
-        radioPressHandler={() => {
-          setRadioSelected(props.item.id);
-          setNextPage();
-        }}
-        {...props}
-      />
-    );
+    return <Item setNextPage={() => dispatch(setNextStep(step))} {...props} />;
   };
 
   return (

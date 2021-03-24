@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {View, TouchableOpacity} from 'react-native';
 
-const CheckBox = ({currentId, checked, handleChecked, isCheckedAll}) => {
+const CheckBox = ({checked, handleChecked, currentId, isCheckedAll}) => {
   const isChecked =
     checked && checked.filter((item) => item.id === currentId).length;
   return (
