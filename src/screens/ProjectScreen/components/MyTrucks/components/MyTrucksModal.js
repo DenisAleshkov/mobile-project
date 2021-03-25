@@ -15,14 +15,13 @@ import {useDispatch, useSelector} from 'react-redux';
 import {setTrucks} from './../../../../../../store/actions/project.action';
 import {getSearchData} from '../../../services/functions.service';
 import {Navigation} from 'react-native-navigation';
-import {Field, reduxForm} from 'redux-form';
+import {Field, formValues, reduxForm} from 'redux-form';
 
-const renderCheckBox = ({input: {value, onChange}, ...props}) => {
+const renderCheckBox = ({input: {checked, onChange}, ...props}) => {
   return (
     <CheckBox
-      handleChecked={() => onChange(props.checkBoxHandler(value))}
-      currentId={props.item.id}
-      checked={value}
+      handleChecked={() => onChange(checked ? null : props.item)}
+      checked={checked}
     />
   );
 };
@@ -49,12 +48,11 @@ const Item = (props) => {
   return (
     <View style={styles.item}>
       <Field
-        name="trucks"
+        name={`truck${item.id}`}
         component={renderCheckBox}
         type="checkbox"
         props={{
           item,
-          checkBoxHandler,
         }}
       />
       <View style={styles.textInfo}>
@@ -97,7 +95,7 @@ const MyTrucksModal = (props) => {
   };
 
   const submit = (values) => {
-    const {trucks} = values;
+    const trucks = Object.values(values).filter((item) => item);
     dispatch(setTrucks(trucks));
     changeTrucks(trucks);
     clear();
@@ -114,6 +112,7 @@ const MyTrucksModal = (props) => {
           <View style={styles.searchContainer}>
             <TextInput
               placeholder="Select Trucks from fleet"
+              autoCapitalize='none'
               value={search}
               onChangeText={(text) => handleSearch(text)}
             />

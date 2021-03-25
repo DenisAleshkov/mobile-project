@@ -2,13 +2,11 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {View, TouchableOpacity} from 'react-native';
 
-const CheckBox = ({checked, handleChecked, currentId, isCheckedAll}) => {
-  const isChecked =
-    checked && checked.filter((item) => item.id === currentId).length;
+const CheckBox = ({checked, handleChecked, isCheckedAll}) => {
   return (
-    <View style={checkBoxStyle(isChecked || isCheckedAll)}>
+    <View style={checkBoxStyle(checked || isCheckedAll)}>
       <TouchableOpacity
-        style={checkBoxInnerStyle(isChecked || isCheckedAll)}
+        style={checkBoxInnerStyle(checked || isCheckedAll)}
         onPress={handleChecked}>
         <Icon name="check-bold" size={15} color="#fff" />
       </TouchableOpacity>

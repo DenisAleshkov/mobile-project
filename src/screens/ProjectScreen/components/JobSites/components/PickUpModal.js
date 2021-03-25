@@ -93,6 +93,7 @@ const JobSitesModal = (props) => {
           <View style={styles.searchContainer}>
             <TextInput
               placeholder="Select Pick-Up Site"
+              autoCapitalize='none'
               value={search}
               onChangeText={(text) => handleSearch(text)}
             />

@@ -11,7 +11,7 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {getSearchData} from '../../../services/functions.service';
 import {Navigation} from 'react-native-navigation';
 import {Field, reduxForm} from 'redux-form';
@@ -19,49 +19,26 @@ import {setHaulers} from '../../../../../../store/actions/project.action';
 
 const renderHauler = ({input: {onChange, value}, ...props}) => {
   const {item} = props;
-  const count = new Map(value).get(item.id)?.count || 0;
   return (
     <View style={styles.item}>
       <View style={styles.itemContent}>
         <Text style={styles.haulersName}>134</Text>
         <View style={styles.action}>
           <TouchableOpacity
-            disabled={count === 0}
+            disabled={value.count === 0 || !value}
             style={styles.counter}
-            onPress={() =>
-              onChange(() => {
-                const hauler = new Map(value).get(item.id);
-                if (hauler) {
-                  return new Map(value).set(item.id, {
-                    projectName: item.projectName,
-                    count: hauler.count === 0 ? 0 : hauler.count - 1,
-                  });
-                }
-              })
-            }>
+            onPress={() => onChange({...item, count: value.count - 1})}>
             <Text style={styles.counterLabel}>-</Text>
           </TouchableOpacity>
           <View style={styles.label}>
-            <Text style={styles.labelText}>{count}</Text>
+            <Text style={styles.labelText}>{value ? value.count : 0}</Text>
           </View>
           <TouchableOpacity
-            disabled={count >= 10}
+            disabled={value.count >= 10}
             style={styles.counter}
-            onPress={() => {
-              onChange(() => {
-                const hauler = new Map(value).get(item.id);
-                if (hauler) {
-                  return new Map(value).set(item.id, {
-                    projectName: item.projectName,
-                    count: hauler.count + 1,
-                  });
-                }
-                return new Map(value).set(item.id, {
-                  projectName: item.projectName,
-                  count: 1,
-                });
-              });
-            }}>
+            onPress={() =>
+              onChange({...item, count: value ? value.count + 1 : 1})
+            }>
             <Text style={styles.counterLabel}>+</Text>
           </TouchableOpacity>
         </View>
@@ -72,7 +49,9 @@ const renderHauler = ({input: {onChange, value}, ...props}) => {
 
 const Item = (props) => {
   const {item} = props;
-  return <Field name="haulers" props={{item}} component={renderHauler} />;
+  return (
+    <Field name={`hauler${item.id}`} props={{item}} component={renderHauler} />
+  );
 };
 
 const HaulersModal = (props) => {
@@ -99,13 +78,9 @@ const HaulersModal = (props) => {
   };
 
   const submit = (values) => {
-    const {haulers} = values;
-    const filterHaulers = Array.from(haulers, ([id, data]) => ({
-      id,
-      ...data,
-    })).filter((item) => item.count !== 0);
-    dispatch(setHaulers(filterHaulers));
-    changeHaulers(filterHaulers);
+    const haulers = Object.values(values).filter((item) => item.count !== 0);
+    dispatch(setHaulers(haulers));
+    changeHaulers(haulers);
     clear();
   };
 

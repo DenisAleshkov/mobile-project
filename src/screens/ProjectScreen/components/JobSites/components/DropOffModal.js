@@ -17,25 +17,11 @@ import {Navigation} from 'react-native-navigation';
 import {Field, reduxForm} from 'redux-form';
 import {setDropOfSites} from '../../../../../../store/actions/project.action';
 
-const renderCheckBox = ({input: {value, onChange}, ...props}) => {
+const renderCheckBox = ({input: {value, checked, onChange}, ...props}) => {
   return (
     <CheckBox
-      handleChecked={() => {
-        onChange(() => {
-          const isChecked =
-            value && value.filter((item) => item.id === props.item.id).length;
-          if (!isChecked) {
-            return [
-              ...value,
-              {id: props.item.id, dropOffSites: props.item.dropOffSites},
-            ];
-          } else {
-            return value.filter((item) => item.id !== props.item.id);
-          }
-        });
-      }}
-      currentId={props.item.id}
-      checked={value}
+      handleChecked={() => onChange(checked ? null : props.item)}
+      checked={checked}
     />
   );
 };
@@ -45,13 +31,10 @@ const Item = (props) => {
   return (
     <View style={styles.modalItem}>
       <Field
-        name="dropOffSites"
+        name={`dropOfSite${item.id}`}
         component={renderCheckBox}
         type="checkbox"
-        value={item}
-        props={{
-          item: item,
-        }}
+        props={{item}}
       />
       <Text style={styles.modalItemLabel}>{item.dropOffSites}</Text>
     </View>
@@ -59,7 +42,7 @@ const Item = (props) => {
 };
 
 const JobSitesModal = (props) => {
-  const {handleSubmit, pristine, submitting, changeDropOffSites} = props;
+  const {handleSubmit, pristine, submitting} = props;
 
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
@@ -91,9 +74,8 @@ const JobSitesModal = (props) => {
   };
 
   const submit = (values) => {
-    const {dropOffSites} = values;
+    const dropOffSites = Object.values(values).filter((item) => item);
     dispatch(setDropOfSites(dropOffSites));
-    changeDropOffSites(dropOffSites);
     cancel();
   };
 
@@ -108,6 +90,7 @@ const JobSitesModal = (props) => {
           <View style={styles.searchContainer}>
             <TextInput
               placeholder="Select Drop-Off Site"
+              autoCapitalize='none'
               value={search}
               onChangeText={(text) => handleSearch(text)}
             />

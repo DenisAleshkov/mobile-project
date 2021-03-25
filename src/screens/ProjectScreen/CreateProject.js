@@ -30,20 +30,20 @@ const CreateProject = (props) => {
   const dispatch = useDispatch();
 
   const submit = (values) => {
-    const random = Math.random();
-    if (random < 0.5) {
-      Navigation.pop(componentId);
-      dispatch(setCreatedProject(values));
-      dropDownAlertRef.current.alertWithType(
-        'success',
-        'Success',
-        'project created',
-      );
-    } else {
+    // const random = Math.random();
+    // if (random < 0.5) {
+    //   Navigation.pop(componentId);
+    //   dispatch(setCreatedProject(values));
+    //   dropDownAlertRef.current.alertWithType(
+    //     'success',
+    //     'Success',
+    //     'project created',
+    //   );
+    // } else {
       const randomError = getRandomError(errors.length);
       dropDownAlertRef.current.alertWithType('error', 'Error', randomError);
-      throw new SubmissionError({_error: randomError});
-    }
+      // throw new SubmissionError({_error: randomError});
+    // }
   };
 
   return (
