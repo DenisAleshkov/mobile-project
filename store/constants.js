@@ -10,10 +10,6 @@ export const SET_REFRESHING = 'SET_REFRESHING';
 export const REQUEST_ERROR = 'REQUEST_ERROR';
 export const SET_HAS_MORE = 'SET_HAS_MORE';
 
-export const SET_PICKUP_SITES = 'SET_PICKUP_SITES';
-export const SET_DROPOF_SITES = 'SET_DROPOF_SITES';
-export const SET_TRUCKS = 'SET_TRUCKS';
-export const SET_HAULERS = 'SET_HAULERS';
 export const SET_CREATED_PROJECT = 'SET_CREATED_PROJECT';
 
 export const SET_STEP = 'SET_STEP';

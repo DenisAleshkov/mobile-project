@@ -20,7 +20,7 @@ const renderRadio = ({input: {checked, value, onChange}, ...props}) => {
 };
 
 const Item = (props) => {
-  const {item} = props;
+  const {item, setNextPage} = props;
   return (
     <View style={styles.item}>
       <View style={styles.leftPart}>
@@ -30,7 +30,7 @@ const Item = (props) => {
           type="radio"
           value={item}
           props={{
-            setNextPage: props.setNextPage,
+            setNextPage,
           }}
         />
         <View style={styles.textInfo}>

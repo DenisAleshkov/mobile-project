@@ -6,7 +6,6 @@ import {Navigation} from 'react-native-navigation';
 import {change, initialize, getFormValues} from 'redux-form';
 import {
   deleteItemFromModal,
-  getHaulers,
   isHasValue,
 } from './../../services/functions.service';
 
@@ -43,7 +42,7 @@ const Haulers = (props) => {
         name: 'HaulersModal',
         passProps: {
           changeHaulers,
-          getHaulers
+          getHaulers,
         },
         options: {
           layout: {

@@ -9,7 +9,7 @@ import DropdownAlert from 'react-native-dropdownalert';
 import {StyleSheet, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {setCreatedProject} from '../../../store/actions/project.action';
-import {reduxForm, reset, SubmissionError} from 'redux-form';
+import {reduxForm, SubmissionError} from 'redux-form';
 import {Navigation} from 'react-native-navigation';
 
 const CreateProject = (props) => {
@@ -40,13 +40,9 @@ const CreateProject = (props) => {
   const submit = (values) => {
     console.log('values', values);
     const random = Math.random();
-    if (random < 1) {
+    if (random < 0.1) {
       dispatch(setCreatedProject(values));
-      // dispatch(reset('PickUpModal'));
-      // dispatch(reset('DropOffModal'));
-      // dispatch(reset('MyTrucksModal'));
-      // dispatch(reset('HaulersModal'));
-      // Navigation.pop(componentId);
+      Navigation.pop(componentId);
       dropDownAlertRef.current.alertWithType(
         'success',
         'Success',
@@ -88,7 +84,7 @@ export default reduxForm({
   form: 'CreateProject',
   initialValues: {
     extRef: '',
-    quantity: '',
+    quantity: '0',
     date: new Date(),
     notify: true,
     overnight: false,

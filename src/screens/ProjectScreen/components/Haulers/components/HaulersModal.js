@@ -54,7 +54,14 @@ const Item = (props) => {
 };
 
 const HaulersModal = (props) => {
-  const {handleSubmit, pristine, submitting, changeHaulers, getHaulers} = props;
+  const {
+    handleSubmit,
+    pristine,
+    submitting,
+    initialize,
+    changeHaulers,
+    getHaulers,
+  } = props;
 
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
@@ -78,11 +85,12 @@ const HaulersModal = (props) => {
   const submit = (values) => {
     const haulers = getHaulers(values);
     changeHaulers(haulers);
-    clear();
+    Navigation.dismissOverlay(props.componentId);
   };
 
   const clear = () => {
     Navigation.dismissOverlay(props.componentId);
+    initialize(null);
   };
 
   const renderItem = (props) => <Item {...props} />;

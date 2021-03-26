@@ -25,12 +25,30 @@ const renderCheckBox = ({input: {checked, onChange}, ...props}) => {
   );
 };
 
-const renderMainCheckBox = ({input: {value, onChange}, ...props}) => {
-  return <CheckBox />;
+const renderMainCheckBox = ({jobs, change}) => {
+  const [checked, setChecked] = React.useState(false);
+
+  const changeAll = () => {
+    jobs.forEach((item) => {
+      !checked
+        ? change(`truck${item.id}`, item)
+        : change(`truck${item.id}`, null);
+    });
+  };
+
+  return (
+    <CheckBox
+      handleChecked={() => {
+        setChecked(!checked);
+        changeAll();
+      }}
+      checked={checked}
+    />
+  );
 };
 
 const Item = (props) => {
-  const {item} = props;
+  const {item, change} = props;
   return (
     <View style={styles.item}>
       <Field
@@ -39,6 +57,7 @@ const Item = (props) => {
         type="checkbox"
         props={{
           item,
+          change,
         }}
       />
       <View style={styles.textInfo}>
@@ -50,7 +69,14 @@ const Item = (props) => {
 };
 
 const MyTrucksModal = (props) => {
-  const {handleSubmit, pristine, reset, submitting, changeTrucks} = props;
+  const {
+    handleSubmit,
+    pristine,
+    change,
+    initialize,
+    submitting,
+    changeTrucks,
+  } = props;
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
 
@@ -71,12 +97,12 @@ const MyTrucksModal = (props) => {
   }, []);
 
   const renderItem = (props) => {
-    return <Item {...props} jobs={jobs} />;
+    return <Item {...props} change={change} jobs={jobs} />;
   };
 
   const clear = () => {
+    initialize(null);
     Navigation.dismissOverlay(props.componentId);
-    reset();
   };
 
   const submit = (values) => {
@@ -103,7 +129,12 @@ const MyTrucksModal = (props) => {
             <Icon name="magnify" size={25} color="#000" />
           </View>
           <View style={styles.changeAllItems}>
-            <Field name="chooseAll" component={renderMainCheckBox} />
+            <Field
+              name="chooseAll"
+              type="checkbox"
+              props={{jobs, change}}
+              component={renderMainCheckBox}
+            />
             <View style={styles.textInfo}>
               <Text style={{fontSize: 20}}>Use All My Trucks</Text>
             </View>

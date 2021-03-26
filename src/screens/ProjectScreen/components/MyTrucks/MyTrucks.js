@@ -1,6 +1,5 @@
 import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import DropdownAlert from 'react-native-dropdownalert';
 import Buttons from '../Buttons';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {connect, useDispatch, useSelector} from 'react-redux';

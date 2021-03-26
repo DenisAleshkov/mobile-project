@@ -67,9 +67,7 @@ const DropOffModal = (props) => {
     reset();
   };
 
-  const renderItem = (props) => {
-    return <Item {...props} />;
-  };
+  const renderItem = (props) => <Item {...props} />;
 
   const submit = (values) => {
     const dropOffSites = Object.values(values).filter((item) => item);

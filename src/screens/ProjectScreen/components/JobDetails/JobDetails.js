@@ -9,15 +9,7 @@ import {
   setPrevStep,
 } from '../../../../../store/actions/stepper.action';
 
-const number = (value) =>
-  value && isNaN(Number(value)) ? 'Must be a number' : undefined;
-const required = (value) => (value ? undefined : 'Required');
-
-const renderExternalRef = ({
-  input: {onChange, value},
-  meta: {error},
-  ...props
-}) => {
+const renderExternalRef = ({input: {onChange, value}}) => {
   return (
     <>
       <TextInput
@@ -25,17 +17,14 @@ const renderExternalRef = ({
         onChangeText={onChange}
         value={value}
       />
-      {error && <Text style={{color: 'red'}}>{error}</Text>}
     </>
   );
 };
 
 const renderQuantity = ({
   input: {onChange, value, name},
-  meta: {error},
   ...props
 }) => {
-  console.log('props', props.error);
   return (
     <>
       <TextInput
@@ -52,13 +41,13 @@ const renderQuantity = ({
         onChangeText={onChange}
         value={value}
       />
-      {error && <Text style={{color: 'red'}}>{error}</Text>}
       {props.error && <Text style={{color: 'red'}}>{props.error}</Text>}
     </>
   );
 };
 
-const renderDateInput = ({input: {onChange, value}, ...props}) => {
+const renderDateInput = ({input: {onChange, value}}) => {
+  console.log('value', value)
   return (
     <DatePicker
       mode="datetime"

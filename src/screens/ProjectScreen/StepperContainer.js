@@ -3,11 +3,8 @@ import Stepper from './components/Stepper';
 import Buttons from './components/Buttons';
 import {StyleSheet, View} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
-import {
-  setNextStep,
-  setPrevStep,
-  setStep,
-} from '../../../store/actions/stepper.action';
+import {setPrevStep, setStep} from '../../../store/actions/stepper.action';
+import {reset} from 'redux-form';
 
 const StepperContainer = ({children, submit, error}) => {
   const step = useSelector((state) => state.StepperReducer.step);
@@ -15,16 +12,16 @@ const StepperContainer = ({children, submit, error}) => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    dispatch(setStep(4));
+    dispatch(setStep(0));
+    dispatch(reset('PickUpModal'));
+    dispatch(reset('DropOffModal'));
+    dispatch(reset('MyTrucksModal'));
+    dispatch(reset('HaulersModal'));
   }, []);
 
   React.useEffect(() => {
     findErrorScreen();
   }, [error]);
-
-  const setNextPage = () => {
-    dispatch(setNextStep(step));
-  };
 
   const setPrevPage = () => {
     dispatch(setPrevStep(step));
@@ -35,8 +32,7 @@ const StepperContainer = ({children, submit, error}) => {
   };
 
   const renderButton = () => {
-    // if (step !== 0 && step === children.length - 1) {
-    if (step === 4) {
+    if (step !== 0 && step === children.length - 1) {
       return (
         <Buttons
           backName="back"
