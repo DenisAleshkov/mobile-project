@@ -39,7 +39,7 @@ const renderQuantity = ({
         name={name}
         keyboardType="numeric"
         onChangeText={onChange}
-        value={value}
+        value={value.toString()}
       />
       {props.error && <Text style={{color: 'red'}}>{props.error}</Text>}
     </>

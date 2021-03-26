@@ -34,7 +34,7 @@ const ProjectScreen = (props) => {
       />
       <Button
         title="Create project"
-        style={{width: 100}}
+        style={styles.button}
         onPress={() => {
           Navigation.push(props.componentId, {
             component: {
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  button: {width: 100},
 });
 
 export default ProjectScreen;

@@ -31,16 +31,16 @@ const CreateProject = (props) => {
 
   const showError = (randomError) => {
     const errorKey = Object.keys(randomError)[0];
-    const result = Object.keys(initialValues).filter(
+    const valueKey = Object.keys(initialValues).filter(
       (item) => item === errorKey,
     )[0];
-    return randomError[result];
+    return randomError[valueKey];
   };
 
   const submit = (values) => {
     console.log('values', values);
     const random = Math.random();
-    if (random < 0.1) {
+    if (random < 0.5) {
       dispatch(setCreatedProject(values));
       Navigation.pop(componentId);
       dropDownAlertRef.current.alertWithType(
@@ -84,7 +84,7 @@ export default reduxForm({
   form: 'CreateProject',
   initialValues: {
     extRef: '',
-    quantity: '0',
+    quantity: 0,
     date: new Date(),
     notify: true,
     overnight: false,
