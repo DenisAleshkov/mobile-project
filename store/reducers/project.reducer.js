@@ -55,7 +55,7 @@ const StepperReducer = (state = initialState, action) => {
       });
     case SET_CREATED_PROJECT:
       return update(state, {
-        createdProject: {$push: action.payload},
+        createdProject: {$push: [action.payload]},
       });
     default:
       return state;

@@ -24,3 +24,20 @@ export const getFormatDate = (value) => {
   const year = date.getFullYear().toString().replace(20, '');
   return `${month}/${currentDate}/${year}  ${formatAMPM(date)}`;
 };
+
+export const isHasValue = (value) => {
+  return value && Object.keys(value).length !== 0;
+};
+
+export const deleteItemFromModal = (id, obj) => {
+  let newObj = {};
+  for (let key in obj) {
+    if (obj[key] && obj[key].id !== id) {
+      newObj = {
+        ...newObj,
+        [key]: obj[key],
+      };
+    }
+  }
+  return newObj;
+};

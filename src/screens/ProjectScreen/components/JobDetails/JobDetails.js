@@ -1,26 +1,41 @@
 import React from 'react';
-import Buttons from './../Buttons';
+import Buttons from '../Buttons';
 import {StyleSheet, TextInput, Switch, Text, View} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
 import DatePicker from 'react-native-date-picker';
+import {connect, useDispatch, useSelector} from 'react-redux';
+import {Field, formValueSelector} from 'redux-form';
 import {
-  setPrevStep,
   setNextStep,
-} from './../../../../../store/actions/stepper.action';
-import {Field} from 'redux-form';
+  setPrevStep,
+} from '../../../../../store/actions/stepper.action';
 
-const renderInput = ({input: {onChange, value}, ...props}) => {
+const number = (value) =>
+  value && isNaN(Number(value)) ? 'Must be a number' : undefined;
+const required = (value) => (value ? undefined : 'Required');
+
+const renderExternalRef = ({
+  input: {onChange, value},
+  meta: {error},
+  ...props
+}) => {
   return (
-    <TextInput
-      style={[styles.input, styles.bigInput]}
-      onChangeText={onChange}
-      value={value}
-      {...props}
-    />
+    <>
+      <TextInput
+        style={[styles.input, styles.bigInput]}
+        onChangeText={onChange}
+        value={value}
+      />
+      {error && <Text style={{color: 'red'}}>{error}</Text>}
+    </>
   );
 };
 
-const renderInputWithCheckbox = ({input: {onChange, value}, ...props}) => {
+const renderQuantity = ({
+  input: {onChange, value, name},
+  meta: {error},
+  ...props
+}) => {
+  console.log('props', props.error);
   return (
     <>
       <TextInput
@@ -32,11 +47,12 @@ const renderInputWithCheckbox = ({input: {onChange, value}, ...props}) => {
             borderColor: props.error ? 'red' : '#000',
           },
         ]}
-        keyboardType = 'numeric'
+        name={name}
+        keyboardType="numeric"
         onChangeText={onChange}
         value={value}
-        {...props}
       />
+      {error && <Text style={{color: 'red'}}>{error}</Text>}
       {props.error && <Text style={{color: 'red'}}>{props.error}</Text>}
     </>
   );
@@ -49,7 +65,6 @@ const renderDateInput = ({input: {onChange, value}, ...props}) => {
       date={value}
       style={{height: 135}}
       onDateChange={onChange}
-      {...props}
     />
   );
 };
@@ -68,7 +83,19 @@ const renderSwitch = ({input: {onChange, value}, ...props}) => {
 };
 
 const JobDetails = (props) => {
-  const {error} = props;
+  const {error, quantity, limit} = props;
+
+  const step = useSelector((state) => state.StepperReducer.step);
+
+  const dispatch = useDispatch();
+
+  const setNextPage = () => {
+    dispatch(setNextStep(step));
+  };
+
+  const setPrevPage = () => {
+    dispatch(setPrevStep(step));
+  };
 
   return (
     <View style={styles.container}>
@@ -76,17 +103,15 @@ const JobDetails = (props) => {
         <View style={styles.actionContainer}>
           <Text style={styles.header}>Job Details</Text>
           <View style={styles.action}>
-            <View style={styles.actionGroup}>
-              <Field name="extRef" component={renderInput} />
+            <View style={styles.actionGroupColumn}>
+              <Field name="extRef" component={renderExternalRef} />
             </View>
             <View style={styles.actionGroup}>
               <View>
                 <Field
                   name="quantity"
-                  component={renderInputWithCheckbox}
-                  props={{
-                    error: error,
-                  }}
+                  component={renderQuantity}
+                  props={{error, limit}}
                 />
               </View>
               <View style={styles.switchColumn}>
@@ -109,6 +134,14 @@ const JobDetails = (props) => {
             </View>
           </View>
         </View>
+        <Buttons
+          backName="back"
+          nextName="next"
+          hasBackIcon={true}
+          disabled={!limit && !quantity}
+          onSubmit={setNextPage}
+          onBack={setPrevPage}
+        />
       </View>
     </View>
   );
@@ -135,6 +168,10 @@ const styles = StyleSheet.create({
   },
   action: {
     alignItems: 'flex-end',
+  },
+  actionGroupColumn: {
+    flexDirection: 'column',
+    marginBottom: 20,
   },
   actionGroup: {
     flexDirection: 'row',
@@ -174,4 +211,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default JobDetails;
+const selector = formValueSelector('CreateProject');
+
+export default connect((state) => ({
+  limit: selector(state, 'limit'),
+  quantity: selector(state, 'quantity'),
+}))(JobDetails);

@@ -1,4 +1,5 @@
 import React from 'react';
+import Buttons from '../Buttons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   StyleSheet,
@@ -9,16 +10,17 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import {
-  setDropOfSites,
-  setPickUpSites,
-} from './../../../../../store/actions/project.action';
-import {useSelector, useDispatch} from 'react-redux';
+import {useSelector, useDispatch, connect} from 'react-redux';
 import {Navigation} from 'react-native-navigation';
-import {change, Field} from 'redux-form';
+import {change, getFormValues, formValueSelector, reset} from 'redux-form';
+import {
+  setNextStep,
+  setPrevStep,
+} from '../../../../../store/actions/stepper.action';
 
 const JobSites = (props) => {
-  const {error, form} = props;
+  const {error, pickUpSites, dropOffSites, form} = props;
+
   const [pickupBtn, setPickupBtn] = React.useState(false);
   const [dropofBtn, setDropofBtn] = React.useState(false);
 
@@ -34,15 +36,22 @@ const JobSites = (props) => {
 
   const dispatch = useDispatch();
 
-  const dropofSites = useSelector((state) => state.ProjectReducer.dropofSites);
-  const pickupSites = useSelector((state) => state.ProjectReducer.pickupSites);
+  const step = useSelector((state) => state.StepperReducer.step);
+
+  const setNextPage = () => {
+    dispatch(setNextStep(step));
+  };
+
+  const setPrevPage = () => {
+    dispatch(setPrevStep(step));
+  };
 
   const changePickUpSites = (value) => {
-    dispatch(change(form, 'pickUpSite', value));
+    dispatch(change(form, 'pickUpSites', value));
   };
 
   const changeDropOffSites = (value) => {
-    dispatch(change(form, 'dropOffSite', value));
+    dispatch(change(form, 'dropOffSites', value));
   };
 
   const showModal = (name) => {
@@ -73,40 +82,41 @@ const JobSites = (props) => {
     );
 
   const renderCountItems = () => {
-    return (
-      dropofSites && (
-        <View style={[labelStyle(dropofBtn), styles.choosedItem]}>
-          <Text style={styles.choosedItemName}>
-            {dropofSites.length > 1
-              ? `${dropofSites.length} items`
-              : dropofSites[0].dropOffSites}
-          </Text>
-          <TouchableOpacity
-            style={styles.choosedItemcons}
-            onPress={() => {
-              setDropofBtn(!dropofBtn);
-              dispatch(setDropOfSites(null));
-              changeDropOffSites(null);
-            }}>
-            <Icon name="close" color="#5f5b57" size={20} />
-          </TouchableOpacity>
-        </View>
-      )
-    );
+    const siteItems =
+      dropOffSites && Object.values(dropOffSites).filter((item) => item);
+    return siteItems ? (
+      <View style={[labelStyle(dropofBtn), styles.choosedItem]}>
+        <Text style={styles.choosedItemName}>
+          {siteItems.length > 1
+            ? `${siteItems.length} items`
+            : siteItems[0].dropOffSites}
+        </Text>
+        <TouchableOpacity
+          style={styles.choosedItemcons}
+          onPress={() => {
+            setDropofBtn(!dropofBtn);
+            changeDropOffSites(null);
+            dispatch(reset('DropOffModal'));
+          }}>
+          <Icon name="close" color="#5f5b57" size={20} />
+        </TouchableOpacity>
+      </View>
+    ) : null;
   };
 
   React.useEffect(() => {
-    if (pickupSites) {
+    if (pickUpSites) {
       setPickupBtn(true);
     }
-  }, [pickupSites]);
+  }, [pickUpSites]);
 
   const renderPickUpBtn = () =>
     pickupBtn ? (
       <TouchableOpacity
         onPress={() => {
           setPickupBtn(!pickupBtn);
-          dispatch(setPickUpSites(null));
+          changePickUpSites(null);
+          dispatch(reset('PickUpModal'));
         }}>
         <Icon name="close" size={25} />
       </TouchableOpacity>
@@ -120,7 +130,7 @@ const JobSites = (props) => {
     );
 
   const renderDropOffBtn = () =>
-    dropofSites ? null : (
+    dropOffSites ? null : (
       <TouchableOpacity onPress={() => showModal('DropOffModal')}>
         <Icon name="chevron-down" size={25} />
       </TouchableOpacity>
@@ -136,25 +146,29 @@ const JobSites = (props) => {
         <View style={styles.actionGroup}>
           <View style={styles.inputContainer}>
             <Text style={labelStyle(pickupBtn)}>Pick-Up Site</Text>
-            <Text>{pickupSites?.projectName}</Text>
+            <Text>{pickUpSites?.projectName}</Text>
             {renderPickUpBtn()}
           </View>
           <Icon name="origin" size={40} />
         </View>
         <View style={styles.actionGroup}>
           <View style={[styles.inputContainerCount]}>
-            <Text style={labelStyle(dropofSites)}>Drop-Off Site</Text>
+            <Text style={labelStyle(dropOffSites)}>Drop-Off Site</Text>
             {renderDropOffBtn()}
-            <Field
-              name="dropOfSites"
-              component={renderCountItems}
-              value={dropofSites}
-            />
+            {renderCountItems()}
           </View>
           <Icon name="origin" size={40} />
         </View>
         {renderError()}
       </View>
+      <Buttons
+        backName="back"
+        nextName="next"
+        hasBackIcon={true}
+        disabled={!pickUpSites || !dropOffSites}
+        onSubmit={setNextPage}
+        onBack={setPrevPage}
+      />
     </View>
   );
 };
@@ -229,4 +243,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default JobSites;
+const selectorPickUp = formValueSelector('PickUpModal');
+const selectorDropOff = getFormValues('DropOffModal');
+
+export default connect((state) => ({
+  pickUpSites: selectorPickUp(state, 'pickUpSites'),
+  dropOffSites: selectorDropOff(state),
+}))(JobSites);

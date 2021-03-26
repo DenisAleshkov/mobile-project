@@ -1,16 +1,25 @@
 import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DropdownAlert from 'react-native-dropdownalert';
+import Buttons from '../Buttons';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {setTrucks} from '../../../../../store/actions/project.action';
+import {connect, useDispatch, useSelector} from 'react-redux';
 import {Navigation} from 'react-native-navigation';
-import {change} from 'redux-form';
+import {change, initialize, getFormValues} from 'redux-form';
+import {
+  setNextStep,
+  setPrevStep,
+} from '../../../../../store/actions/stepper.action';
+import {
+  deleteItemFromModal,
+  isHasValue,
+} from './../../services/functions.service';
 
 const MyTrucks = (props) => {
-  const {error, form} = props;
+  const {error, trucksValues, form} = props;
 
-  const dropDownAlertRef = React.useRef(null);
+  const getTrucks = (values) =>
+    values && Object.values(values).filter((item) => item);
 
   const labelStyle = (value) => ({
     position: 'absolute',
@@ -24,17 +33,20 @@ const MyTrucks = (props) => {
 
   const dispatch = useDispatch();
 
-  const trucks = useSelector((state) => state.ProjectReducer.trucks);
+  const step = useSelector((state) => state.StepperReducer.step);
+
+  const setNextPage = () => {
+    dispatch(setNextStep(step));
+  };
+
+  const setPrevPage = () => {
+    dispatch(setPrevStep(step));
+  };
 
   const deleteItem = (currentId) => {
-    const newTrucks = trucks.filter((truck) => truck.id !== currentId);
-    if (newTrucks.length === 0) {
-      dispatch(setTrucks(null));
-      changeTrucks(null)
-    } else {
-      dispatch(setTrucks(newTrucks));
-      changeTrucks(newTrucks)
-    }
+    const newTrucks = deleteItemFromModal(currentId, trucksValues);
+    dispatch(initialize('MyTrucksModal', newTrucks));
+    changeTrucks(getTrucks(newTrucks));
   };
 
   const changeTrucks = (value) => {
@@ -53,7 +65,7 @@ const MyTrucks = (props) => {
       component: {
         name: 'MyTrucksModal',
         passProps: {
-          changeTrucks
+          changeTrucks,
         },
         options: {
           layout: {
@@ -67,18 +79,22 @@ const MyTrucks = (props) => {
     });
   };
 
-  const renderTrucks = () =>
-    trucks &&
-    trucks.map((item) => (
-      <View style={styles.choosedItem} key={item.id}>
-        <Text style={styles.choosedItemName}>{item.companyName}</Text>
-        <TouchableOpacity
-          style={styles.choosedItemcons}
-          onPress={() => deleteItem(item.id)}>
-          <Icon name="close-thick" color="#5f5b57" size={20} />
-        </TouchableOpacity>
-      </View>
-    ));
+  const renderTrucks = () => {
+    return (
+      getTrucks(trucksValues) &&
+      getTrucks(trucksValues).map((item) => (
+        <View style={styles.choosedItem} key={item.id}>
+          <Text style={styles.choosedItemName}>{item.companyName}</Text>
+          <TouchableOpacity
+            style={styles.choosedItemcons}
+            onPress={() => deleteItem(item.id)}>
+            <Icon name="close-thick" color="#5f5b57" size={20} />
+          </TouchableOpacity>
+        </View>
+      ))
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.inner}>
@@ -86,7 +102,9 @@ const MyTrucks = (props) => {
           <Text style={styles.header}>Trucks Assigned</Text>
           <View style={styles.action}>
             <View style={styles.inputContainer}>
-              <Text style={labelStyle(trucks)}>Trucks From Fleet</Text>
+              <Text style={labelStyle(isHasValue(trucksValues))}>
+                Trucks From Fleet
+              </Text>
               <View style={styles.chosedItems}>{renderTrucks()}</View>
             </View>
             {renderError()}
@@ -96,7 +114,14 @@ const MyTrucks = (props) => {
           </View>
         </View>
       </View>
-      <DropdownAlert ref={dropDownAlertRef} />
+      <Buttons
+        backName="back"
+        nextName="next"
+        hasBackIcon={true}
+        disabled={!getTrucks(trucksValues)}
+        onSubmit={setNextPage}
+        onBack={setPrevPage}
+      />
     </View>
   );
 };
@@ -155,4 +180,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyTrucks;
+const selector = getFormValues('MyTrucksModal');
+
+export default connect((state) => ({
+  trucksValues: selector(state),
+}))(MyTrucks);

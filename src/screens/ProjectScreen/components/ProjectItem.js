@@ -3,30 +3,38 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {getFormatDate} from './../services/functions.service';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 
-const ProjectItem = ({id, inputs, payload, switches}) => {
-  const isOpen = () => (switches.notify ? 'open' : 'close');
+const ProjectItem = ({
+  id,
+  date,
+  limit,
+  payloadName,
+  totalQuantity,
+  unitPrice,
+  companyName,
+}) => {
+  const isUnlimited = () => (limit ? 'unlimited' : 'limited');
   return (
     <View style={styles.item}>
       <View style={styles.rightPart}>
         <Text style={styles.jobNumber}>Proejct #{id}</Text>
-        <Text style={styles.projectName}>{inputs.name}</Text>
-        <Text style={styles.bigText}>{payload.totalQuantity}</Text>
-        <Text style={styles.payloadName}>{inputs.street}</Text>
+        <Text style={styles.projectName}>{companyName}</Text>
+        <Text style={styles.bigText}>{totalQuantity}</Text>
+        <Text style={styles.payloadName}>{payloadName}</Text>
       </View>
       <View style={styles.leftPart}>
-        <Text style={styles.startDate}>{getFormatDate(inputs.date)}</Text>
+        <Text style={styles.startDate}>{getFormatDate(date)}</Text>
         <Text
           style={[
             styles.status,
-            {backgroundColor: switches.notify ? '#1cb11b' : '#b1681b'},
+            {backgroundColor: limit ? '#b1681b' : '#1cb11b'},
           ]}>
-          {isOpen()}
+          {isUnlimited()}
         </Text>
         <Text style={styles.unitPrice}>
-          <Text style={styles.greenText}>{payload.unitPrice}</Text> / TON
+          <Text style={styles.greenText}>{unitPrice}</Text> / TON
         </Text>
         <TouchableOpacity style={styles.ticketButton}>
-          <Text style={styles.closedTicketsCount}>{payload.unitPrice}</Text>
+          <Text style={styles.closedTicketsCount}>{unitPrice}</Text>
           <Icon name="clipboard-check" size={25} color="#2d2b2b" />
         </TouchableOpacity>
       </View>

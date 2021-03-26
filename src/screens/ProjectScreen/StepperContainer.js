@@ -11,10 +11,11 @@ import {
 
 const StepperContainer = ({children, submit, error}) => {
   const step = useSelector((state) => state.StepperReducer.step);
+
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    dispatch(setStep(0));
+    dispatch(setStep(4));
   }, []);
 
   React.useEffect(() => {
@@ -24,6 +25,7 @@ const StepperContainer = ({children, submit, error}) => {
   const setNextPage = () => {
     dispatch(setNextStep(step));
   };
+
   const setPrevPage = () => {
     dispatch(setPrevStep(step));
   };
@@ -33,18 +35,8 @@ const StepperContainer = ({children, submit, error}) => {
   };
 
   const renderButton = () => {
-    if (step !== 0 && step !== children.length - 1) {
-      return (
-        <Buttons
-          backName="back"
-          nextName="next"
-          hasBackIcon={true}
-          onSubmit={setNextPage}
-          onBack={setPrevPage}
-        />
-      );
-    }
-    if (step === children.length - 1) {
+    // if (step !== 0 && step === children.length - 1) {
+    if (step === 4) {
       return (
         <Buttons
           backName="back"

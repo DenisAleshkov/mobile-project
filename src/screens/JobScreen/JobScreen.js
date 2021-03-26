@@ -15,7 +15,6 @@ import Header from './components/Header';
 import Item from './components/Item';
 
 const JobScreen = (props) => {
-
   const dispatch = useDispatch();
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
@@ -23,7 +22,6 @@ const JobScreen = (props) => {
   const loading = useSelector((state) => state.LoadingReducer.isLoading);
   const refreshing = useSelector((state) => state.LoadingReducer.refreshing);
   const page = useSelector((state) => state.JobReducer.page);
-
 
   React.useEffect(() => {
     dispatch(getJobs(page));
@@ -58,7 +56,7 @@ const JobScreen = (props) => {
 
   return (
     <View style={styles.container}>
-      <Header />
+      <Header title="Comlpeted Jobs" />
       <FlatList
         data={jobs}
         style={styles.list}

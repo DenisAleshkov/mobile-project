@@ -12,10 +12,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {getSearchData} from '../../../services/functions.service';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {Navigation} from 'react-native-navigation';
 import {Field, reduxForm} from 'redux-form';
-import {setPickUpSites} from '../../../../../../store/actions/project.action';
 
 const renderRadio = ({input: {checked, value, onChange}}) => {
   return (
@@ -43,8 +42,8 @@ const Item = (props) => {
   );
 };
 
-const JobSitesModal = (props) => {
-  const {handleSubmit, pristine, submitting, changePickUpSites} = props;
+const PickUpModal = (props) => {
+  const {handleSubmit, pristine, reset, submitting, changePickUpSites} = props;
 
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
@@ -54,8 +53,6 @@ const JobSitesModal = (props) => {
   React.useEffect(() => {
     setSearchData(jobs);
   }, []);
-
-  const dispatch = useDispatch();
 
   const handleSearch = (text) => {
     if (text) {
@@ -69,6 +66,7 @@ const JobSitesModal = (props) => {
 
   const cancel = () => {
     Navigation.dismissOverlay(props.componentId);
+    reset();
   };
 
   const renderItem = (props) => {
@@ -77,9 +75,8 @@ const JobSitesModal = (props) => {
 
   const submit = (values) => {
     const {pickUpSites} = values;
-    dispatch(setPickUpSites(pickUpSites));
     changePickUpSites(pickUpSites);
-    cancel();
+    Navigation.dismissOverlay(props.componentId);
   };
 
   return (
@@ -93,7 +90,6 @@ const JobSitesModal = (props) => {
           <View style={styles.searchContainer}>
             <TextInput
               placeholder="Select Pick-Up Site"
-              autoCapitalize='none'
               value={search}
               onChangeText={(text) => handleSearch(text)}
             />
@@ -177,5 +173,6 @@ const styles = StyleSheet.create({
 });
 
 export default reduxForm({
-  form: 'JobSitesModal',
-})(JobSitesModal);
+  form: 'PickUpModal',
+  destroyOnUnmount: false,
+})(PickUpModal);

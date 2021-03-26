@@ -1,13 +1,17 @@
 import React, {useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {setHaulers} from '../../../../../store/actions/project.action';
+import {connect, useDispatch} from 'react-redux';
 import {Navigation} from 'react-native-navigation';
-import {change} from 'redux-form';
+import {change, initialize, getFormValues} from 'redux-form';
+import {
+  deleteItemFromModal,
+  getHaulers,
+  isHasValue,
+} from './../../services/functions.service';
 
 const Haulers = (props) => {
-  const {form} = props;
+  const {form, haulersValues} = props;
 
   const labelStyle = (value) => ({
     position: 'absolute',
@@ -19,20 +23,19 @@ const Haulers = (props) => {
     fontSize: !value ? 16 : 12,
   });
 
+  const getHaulers = (values) => {
+    return values && Object.values(values).filter((item) => item.count !== 0);
+  };
+
   const dispatch = useDispatch();
 
-  const haulers = useSelector((state) => state.ProjectReducer.haulers);
-
   const deleteItem = (currentId) => {
-    const newHaulers = haulers.filter((hauler) => hauler.id !== currentId);
-    if (newHaulers.length === 0) {
-      dispatch(setHaulers(null));
-      changeHaulers(null)
-    } else {
-      dispatch(setHaulers(newHaulers));
-      changeHaulers(newHaulers)
-    }
+    const newHaulers = deleteItemFromModal(currentId, haulersValues);
+    dispatch(initialize('HaulersModal', newHaulers));
+    changeHaulers(getHaulers(newHaulers));
   };
+
+  const changeHaulers = (value) => dispatch(change(form, 'haulers', value));
 
   const showModal = () => {
     Navigation.showOverlay({
@@ -40,6 +43,7 @@ const Haulers = (props) => {
         name: 'HaulersModal',
         passProps: {
           changeHaulers,
+          getHaulers
         },
         options: {
           layout: {
@@ -53,23 +57,23 @@ const Haulers = (props) => {
     });
   };
 
-  const changeHaulers = (value) => dispatch(change(form, 'haulers', value));
-
-  const renderHaulers = () =>
-    haulers &&
-    haulers.map((item) => (
-      <View style={styles.choosedItem} key={item.id}>
-        <Text style={styles.choosedItemName}>
-          {item.projectName} - {item.count} Req.
-        </Text>
-        <TouchableOpacity
-          style={styles.choosedItemcons}
-          onPress={() => deleteItem(item.id)}>
-          <Icon name="close" color="#5f5b57" size={20} />
-        </TouchableOpacity>
-      </View>
-    ));
-
+  const renderHaulers = () => {
+    return (
+      getHaulers(haulersValues) &&
+      getHaulers(haulersValues).map((item) => (
+        <View style={styles.choosedItem} key={item.id}>
+          <Text style={styles.choosedItemName}>
+            {item.projectName} - {item.count} Req.
+          </Text>
+          <TouchableOpacity
+            style={styles.choosedItemcons}
+            onPress={() => deleteItem(item.id)}>
+            <Icon name="close" color="#5f5b57" size={20} />
+          </TouchableOpacity>
+        </View>
+      ))
+    );
+  };
   return (
     <View style={styles.container}>
       <View style={styles.inner}>
@@ -77,7 +81,7 @@ const Haulers = (props) => {
           <Text style={styles.header}>Select Haulers (Optional)</Text>
           <View style={styles.action}>
             <TouchableOpacity style={styles.inputContainer} onPress={showModal}>
-              <Text style={labelStyle(haulers && haulers.length)}>
+              <Text style={labelStyle(isHasValue(haulersValues))}>
                 Select Haulers
               </Text>
               <View style={styles.chosedItems}>{renderHaulers()}</View>
@@ -147,4 +151,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Haulers;
+const selector = getFormValues('HaulersModal');
+
+export default connect((state) => ({
+  haulersValues: selector(state),
+}))(Haulers);

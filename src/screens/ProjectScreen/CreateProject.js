@@ -9,11 +9,11 @@ import DropdownAlert from 'react-native-dropdownalert';
 import {StyleSheet, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {setCreatedProject} from '../../../store/actions/project.action';
-import {reduxForm, SubmissionError} from 'redux-form';
+import {reduxForm, reset, SubmissionError} from 'redux-form';
 import {Navigation} from 'react-native-navigation';
 
 const CreateProject = (props) => {
-  const {componentId, handleSubmit, clearSubmitErrors, form, error} = props;
+  const {componentId, handleSubmit, initialValues, form, error} = props;
 
   const dropDownAlertRef = React.useRef(null);
 
@@ -29,30 +29,43 @@ const CreateProject = (props) => {
 
   const dispatch = useDispatch();
 
+  const showError = (randomError) => {
+    const errorKey = Object.keys(randomError)[0];
+    const result = Object.keys(initialValues).filter(
+      (item) => item === errorKey,
+    )[0];
+    return randomError[result];
+  };
+
   const submit = (values) => {
-    // const random = Math.random();
-    // if (random < 0.5) {
-    //   Navigation.pop(componentId);
-    //   dispatch(setCreatedProject(values));
-    //   dropDownAlertRef.current.alertWithType(
-    //     'success',
-    //     'Success',
-    //     'project created',
-    //   );
-    // } else {
+    console.log('values', values);
+    const random = Math.random();
+    if (random < 1) {
+      dispatch(setCreatedProject(values));
+      // dispatch(reset('PickUpModal'));
+      // dispatch(reset('DropOffModal'));
+      // dispatch(reset('MyTrucksModal'));
+      // dispatch(reset('HaulersModal'));
+      // Navigation.pop(componentId);
+      dropDownAlertRef.current.alertWithType(
+        'success',
+        'Success',
+        'project created',
+      );
+    } else {
       const randomError = getRandomError(errors.length);
-      dropDownAlertRef.current.alertWithType('error', 'Error', randomError);
-      // throw new SubmissionError({_error: randomError});
-    // }
+      dropDownAlertRef.current.alertWithType(
+        'error',
+        'Error',
+        showError(randomError),
+      );
+      throw new SubmissionError({_error: randomError});
+    }
   };
 
   return (
     <View style={styles.container}>
-      <StepperContainer
-        error={error}
-        dropDownAlertRef={dropDownAlertRef}
-        clearSubmitErrors={clearSubmitErrors}
-        submit={handleSubmit(submit)}>
+      <StepperContainer error={error} form={form} submit={handleSubmit(submit)}>
         <Payload />
         <JoDetails error={error && error.quantity} />
         <JobSites form={form} error={error && error.site} />
@@ -80,5 +93,10 @@ export default reduxForm({
     notify: true,
     overnight: false,
     limit: false,
+    site: null,
+    dropOffSites: null,
+    pickUpSites: null,
+    trucks: null,
+    message: '',
   },
 })(CreateProject);

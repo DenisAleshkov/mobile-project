@@ -11,11 +11,10 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {getSearchData} from '../../../services/functions.service';
 import {Navigation} from 'react-native-navigation';
 import {Field, reduxForm} from 'redux-form';
-import {setHaulers} from '../../../../../../store/actions/project.action';
 
 const renderHauler = ({input: {onChange, value}, ...props}) => {
   const {item} = props;
@@ -55,13 +54,12 @@ const Item = (props) => {
 };
 
 const HaulersModal = (props) => {
-  const {handleSubmit, pristine, submitting, changeHaulers} = props;
+  const {handleSubmit, pristine, submitting, changeHaulers, getHaulers} = props;
+
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
-
-  const dispatch = useDispatch();
 
   React.useEffect(() => {
     setSearchData(jobs);
@@ -78,8 +76,7 @@ const HaulersModal = (props) => {
   };
 
   const submit = (values) => {
-    const haulers = Object.values(values).filter((item) => item.count !== 0);
-    dispatch(setHaulers(haulers));
+    const haulers = getHaulers(values);
     changeHaulers(haulers);
     clear();
   };
@@ -88,9 +85,7 @@ const HaulersModal = (props) => {
     Navigation.dismissOverlay(props.componentId);
   };
 
-  const renderItem = (props) => {
-    return <Item {...props} />;
-  };
+  const renderItem = (props) => <Item {...props} />;
 
   return (
     <Modal animationType="fade" transparent={true} onRequestClose={clear}>
@@ -229,4 +224,5 @@ const styles = StyleSheet.create({
 
 export default reduxForm({
   form: 'HaulersModal',
+  destroyOnUnmount: false,
 })(HaulersModal);

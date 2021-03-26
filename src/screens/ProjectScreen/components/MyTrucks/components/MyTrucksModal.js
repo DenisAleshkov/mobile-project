@@ -11,11 +11,10 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {setTrucks} from './../../../../../../store/actions/project.action';
+import {useSelector} from 'react-redux';
 import {getSearchData} from '../../../services/functions.service';
 import {Navigation} from 'react-native-navigation';
-import {Field, formValues, reduxForm} from 'redux-form';
+import {Field, reduxForm} from 'redux-form';
 
 const renderCheckBox = ({input: {checked, onChange}, ...props}) => {
   return (
@@ -32,19 +31,6 @@ const renderMainCheckBox = ({input: {value, onChange}, ...props}) => {
 
 const Item = (props) => {
   const {item} = props;
-
-  const checkBoxHandler = (value) => {
-    const isChecked =
-      value && value.filter((item) => item.id === props.item.id).length;
-    if (!isChecked) {
-      return [
-        ...value,
-        {id: props.item.id, companyName: props.item.companyName},
-      ];
-    }
-    return value.filter((item) => item.id !== props.item.id);
-  };
-
   return (
     <View style={styles.item}>
       <Field
@@ -64,20 +50,18 @@ const Item = (props) => {
 };
 
 const MyTrucksModal = (props) => {
-  const {handleSubmit, pristine, submitting, changeTrucks} = props;
+  const {handleSubmit, pristine, reset, submitting, changeTrucks} = props;
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
 
-  const dispatch = useDispatch();
-
   const handleSearch = (text) => {
     if (text) {
-      setSearchData(getSearchData(data, text, 'companyName'));
+      setSearchData(getSearchData(jobs, text, 'companyName'));
       setSearch(text);
     } else {
-      setSearchData(data);
+      setSearchData(jobs);
       setSearch(text);
     }
   };
@@ -92,13 +76,13 @@ const MyTrucksModal = (props) => {
 
   const clear = () => {
     Navigation.dismissOverlay(props.componentId);
+    reset();
   };
 
   const submit = (values) => {
     const trucks = Object.values(values).filter((item) => item);
-    dispatch(setTrucks(trucks));
     changeTrucks(trucks);
-    clear();
+    Navigation.dismissOverlay(props.componentId);
   };
 
   return (
@@ -112,7 +96,7 @@ const MyTrucksModal = (props) => {
           <View style={styles.searchContainer}>
             <TextInput
               placeholder="Select Trucks from fleet"
-              autoCapitalize='none'
+              autoCapitalize="none"
               value={search}
               onChangeText={(text) => handleSearch(text)}
             />
@@ -213,4 +197,5 @@ const styles = StyleSheet.create({
 
 export default reduxForm({
   form: 'MyTrucksModal',
+  destroyOnUnmount: false,
 })(MyTrucksModal);
