@@ -1,4 +1,3 @@
-import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import JobScreen from './src/screens/JobScreen/JobScreen';
 import ProjectScreen from './src/screens/ProjectScreen/ProjectScreen';
