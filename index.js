@@ -13,15 +13,6 @@ Navigation.registerComponentWithRedux(
   store,
 );
 
-const Logo = () => {
-  return (
-    <Image
-      source={require('./src/assets/logo.jpeg')}
-      style={{width: 40, height: 40}}
-    />
-  );
-};
-
 Navigation.registerComponent('Logo', () => Logo);
 
 const bottomTabs = (icons) => ({
@@ -57,9 +48,7 @@ const BottoTabOptions = (icons) => ({
 const TopBarOptions = (icons) => ({
   title: {
     alignment: 'center',
-    component: {
-      name: 'Logo',
-    },
+    text: 'Logo',
   },
   rightButtons: [
     {
