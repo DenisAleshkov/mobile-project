@@ -8,12 +8,12 @@ import {
   Dimensions,
 } from 'react-native';
 
-const Header = () => {
+const Header = ({title}) => {
   return (
     <View style={styles.header}>
       <View style={styles.headerSide}>
         <Icon style={styles.headerIcon} name="check" size={20} color="#fff" />
-        <Text style={styles.headerLabel}>Comlpeted Jobs</Text>
+        <Text style={styles.headerLabel}>{title}</Text>
       </View>
       <View style={styles.headerSide}>
         <TouchableOpacity>

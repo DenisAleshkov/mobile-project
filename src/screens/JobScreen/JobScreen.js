@@ -15,13 +15,12 @@ import Header from './components/Header';
 import Item from './components/Item';
 
 const JobScreen = (props) => {
-  const [refreshing, setRefreshing] = React.useState(false);
-
   const dispatch = useDispatch();
 
   const jobs = useSelector((state) => state.JobReducer.jobs);
   const error = useSelector((state) => state.JobReducer.error);
   const loading = useSelector((state) => state.LoadingReducer.isLoading);
+  const refreshing = useSelector((state) => state.LoadingReducer.refreshing);
   const page = useSelector((state) => state.JobReducer.page);
 
   React.useEffect(() => {
@@ -29,13 +28,11 @@ const JobScreen = (props) => {
   }, []);
 
   const handleLoad = () => {
-    dispatch(getJobs(page + 1));
+    dispatch(getJobs(page));
   };
 
   const handleRefresh = () => {
-    setRefreshing(true);
     dispatch(getJobs(1));
-    setRefreshing(false);
   };
 
   const renderItem = (props) => <Item {...props} />;
@@ -43,13 +40,7 @@ const JobScreen = (props) => {
   const renderFooter = () => {
     if (!loading) return null;
     return (
-      <View
-        style={{
-          width: Dimensions.get('window').width,
-          paddingVertical: 20,
-          marginTop: 10,
-          marginBottom: 10,
-        }}>
+      <View style={styles.footer}>
         <ActivityIndicator animating color="#848d95" size="large" />
       </View>
     );
@@ -58,27 +49,29 @@ const JobScreen = (props) => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text>Something wrong</Text>
+        <Text>{error}</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header />
+    <View style={styles.container}>
+      <Header title="Comlpeted Jobs" />
       <FlatList
         data={jobs}
         style={styles.list}
         refreshing={refreshing}
         renderItem={renderItem}
-        keyExtractor={(item) => `${item.id}`}
-        onEndReached={handleLoad}
+        keyExtractor={(item) => item.id.toString()}
+        onEndReached={() => {
+          handleLoad();
+        }}
+        extraData={false}
         onRefresh={handleRefresh}
         ListFooterComponent={renderFooter}
-        onEndReachedThreshold={0.5}
       />
       <StickyBtn />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -90,12 +83,20 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    height: Dimensions.get('window').height,
     backgroundColor: '#312f2f',
   },
   list: {
+    flex: 1,
     backgroundColor: '#dbd6dc',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+  },
+  footer: {
+    width: Dimensions.get('window').width,
+    paddingVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
 });
 

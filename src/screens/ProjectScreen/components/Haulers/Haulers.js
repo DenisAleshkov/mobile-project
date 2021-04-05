@@ -1,24 +1,16 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Buttons from '../Buttons';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import {connect, useDispatch, useSelector} from 'react-redux';
+import {connect, useDispatch} from 'react-redux';
 import {Navigation} from 'react-native-navigation';
 import {change, initialize, getFormValues} from 'redux-form';
-import {
-  setNextStep,
-  setPrevStep,
-} from '../../../../../store/actions/stepper.action';
 import {
   deleteItemFromModal,
   isHasValue,
 } from './../../services/functions.service';
 
-const MyTrucks = (props) => {
-  const {error, trucksValues, form} = props;
-
-  const getTrucks = (values) =>
-    values && Object.values(values).filter((item) => item);
+const Haulers = (props) => {
+  const {form, haulersValues} = props;
 
   const labelStyle = (value) => ({
     position: 'absolute',
@@ -30,41 +22,27 @@ const MyTrucks = (props) => {
     fontSize: !value ? 16 : 12,
   });
 
+  const getHaulers = (values) => {
+    return values && Object.values(values).filter((item) => item.count !== 0);
+  };
+
   const dispatch = useDispatch();
 
-  const step = useSelector((state) => state.StepperReducer.step);
-
-  const setNextPage = () => {
-    dispatch(setNextStep(step));
-  };
-
-  const setPrevPage = () => {
-    dispatch(setPrevStep(step));
-  };
-
   const deleteItem = (currentId) => {
-    const newTrucks = deleteItemFromModal(currentId, trucksValues);
-    dispatch(initialize('MyTrucksModal', newTrucks));
-    changeTrucks(getTrucks(newTrucks));
+    const newHaulers = deleteItemFromModal(currentId, haulersValues);
+    dispatch(initialize('HaulersModal', newHaulers));
+    changeHaulers(getHaulers(newHaulers));
   };
 
-  const changeTrucks = (value) => {
-    dispatch(change(form, 'trucks', value));
-  };
-
-  const renderError = () =>
-    error && (
-      <View style={{width: '100%', alignItems: 'flex-start'}}>
-        <Text style={{color: 'red'}}>{error}</Text>
-      </View>
-    );
+  const changeHaulers = (value) => dispatch(change(form, 'haulers', value));
 
   const showModal = () => {
     Navigation.showOverlay({
       component: {
-        name: 'MyTrucksModal',
+        name: 'HaulersModal',
         passProps: {
-          changeTrucks,
+          changeHaulers,
+          getHaulers,
         },
         options: {
           layout: {
@@ -78,49 +56,41 @@ const MyTrucks = (props) => {
     });
   };
 
-  const renderTrucks = () => {
+  const renderHaulers = () => {
     return (
-      getTrucks(trucksValues) &&
-      getTrucks(trucksValues).map((item) => (
+      getHaulers(haulersValues) &&
+      getHaulers(haulersValues).map((item) => (
         <View style={styles.choosedItem} key={item.id}>
-          <Text style={styles.choosedItemName}>{item.companyName}</Text>
+          <Text style={styles.choosedItemName}>
+            {item.projectName} - {item.count} Req.
+          </Text>
           <TouchableOpacity
             style={styles.choosedItemcons}
             onPress={() => deleteItem(item.id)}>
-            <Icon name="close-thick" color="#5f5b57" size={20} />
+            <Icon name="close" color="#5f5b57" size={20} />
           </TouchableOpacity>
         </View>
       ))
     );
   };
-
   return (
     <View style={styles.container}>
       <View style={styles.inner}>
         <View style={styles.actionContainer}>
-          <Text style={styles.header}>Trucks Assigned</Text>
+          <Text style={styles.header}>Select Haulers (Optional)</Text>
           <View style={styles.action}>
-            <View style={styles.inputContainer}>
-              <Text style={labelStyle(isHasValue(trucksValues))}>
-                Trucks From Fleet
+            <TouchableOpacity style={styles.inputContainer} onPress={showModal}>
+              <Text style={labelStyle(isHasValue(haulersValues))}>
+                Select Haulers
               </Text>
-              <View style={styles.chosedItems}>{renderTrucks()}</View>
-            </View>
-            {renderError()}
-            <TouchableOpacity style={styles.openModal} onPress={showModal}>
-              <Text style={styles.textStyle}>View All</Text>
+              <View style={styles.chosedItems}>{renderHaulers()}</View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.inputContainer} onPress={() => {}}>
+              <Text>Job Notes - Optional</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-      <Buttons
-        backName="back"
-        nextName="next"
-        hasBackIcon={true}
-        disabled={!getTrucks(trucksValues)}
-        onSubmit={setNextPage}
-        onBack={setPrevPage}
-      />
     </View>
   );
 };
@@ -137,6 +107,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 30,
   },
+  inner: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   actionContainer: {},
   inputContainer: {
     borderColor: '#000',
@@ -147,14 +122,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
   },
-  inner: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  action: {
-    alignItems: 'flex-end',
-  },
+  action: {},
   textStyle: {
     color: '#b1681b',
     textDecorationLine: 'underline',
@@ -167,20 +135,23 @@ const styles = StyleSheet.create({
   },
   choosedItem: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 18,
     backgroundColor: '#e4ad71',
     top: 15,
     margin: 3,
+    maxWidth: 280,
   },
   choosedItemName: {
     marginRight: 15,
   },
 });
 
-const selector = getFormValues('MyTrucksModal');
+const selector = getFormValues('HaulersModal');
 
 export default connect((state) => ({
-  trucksValues: selector(state),
-}))(MyTrucks);
+  haulersValues: selector(state),
+}))(Haulers);

@@ -1,14 +1,14 @@
 import React from 'react';
+import Buttons from './../../Buttons';
+import CheckBox from './../../CheckBox';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Buttons from '../../Buttons';
-import CheckBox from '../../CheckBox';
 import {
   StyleSheet,
-  Modal,
-  TextInput,
   Text,
-  View,
+  TextInput,
   FlatList,
+  View,
+  Modal,
   TouchableOpacity,
 } from 'react-native';
 import {useSelector} from 'react-redux';
@@ -25,58 +25,24 @@ const renderCheckBox = ({input: {checked, onChange}, ...props}) => {
   );
 };
 
-const renderMainCheckBox = ({jobs, change}) => {
-  const [checked, setChecked] = React.useState(false);
-
-  const changeAll = () => {
-    jobs.forEach((item) => {
-      !checked
-        ? change(`truck${item.id}`, item)
-        : change(`truck${item.id}`, null);
-    });
-  };
-
-  return (
-    <CheckBox
-      handleChecked={() => {
-        setChecked(!checked);
-        changeAll();
-      }}
-      checked={checked}
-    />
-  );
-};
-
 const Item = (props) => {
-  const {item, change} = props;
+  const {item} = props;
   return (
-    <View style={styles.item}>
+    <View style={styles.modalItem}>
       <Field
-        name={`truck${item.id}`}
+        name={`dropOfSite${item.id}`}
         component={renderCheckBox}
         type="checkbox"
-        props={{
-          item,
-          change,
-        }}
+        props={{item}}
       />
-      <View style={styles.textInfo}>
-        <Text style={{fontSize: 20}}>{item.companyName}</Text>
-        <Text style={{fontSize: 10}}>{item.projectName}</Text>
-      </View>
+      <Text style={styles.modalItemLabel}>{item.dropOffSites}</Text>
     </View>
   );
 };
 
-const MyTrucksModal = (props) => {
-  const {
-    handleSubmit,
-    pristine,
-    change,
-    initialize,
-    submitting,
-    changeTrucks,
-  } = props;
+const DropOffModal = (props) => {
+  const {handleSubmit, pristine, reset, changeDropOffSites, submitting} = props;
+
   const [search, setSearch] = React.useState('');
   const [searchData, setSearchData] = React.useState([]);
 
@@ -84,7 +50,7 @@ const MyTrucksModal = (props) => {
 
   const handleSearch = (text) => {
     if (text) {
-      setSearchData(getSearchData(jobs, text, 'companyName'));
+      setSearchData(getSearchData(jobs, text, 'dropOffSites'));
       setSearch(text);
     } else {
       setSearchData(jobs);
@@ -96,48 +62,35 @@ const MyTrucksModal = (props) => {
     setSearchData(jobs);
   }, []);
 
-  const renderItem = (props) => {
-    return <Item {...props} change={change} jobs={jobs} />;
+  const cancel = () => {
+    Navigation.dismissOverlay(props.componentId);
+    reset();
   };
 
-  const clear = () => {
-    initialize(null);
-    Navigation.dismissOverlay(props.componentId);
-  };
+  const renderItem = (props) => <Item {...props} />;
 
   const submit = (values) => {
-    const trucks = Object.values(values).filter((item) => item);
-    changeTrucks(trucks);
+    const dropOffSites = Object.values(values).filter((item) => item);
+    changeDropOffSites(dropOffSites);
     Navigation.dismissOverlay(props.componentId);
   };
 
   return (
-    <Modal animationType="fade" transparent={true} onRequestClose={clear}>
+    <Modal animationType="fade" transparent={true} onRequestClose={cancel}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <TouchableOpacity style={styles.closeBtn} onPress={clear}>
+          <TouchableOpacity style={styles.closeBtn} onPress={cancel}>
             <Icon name="close" size={25} />
           </TouchableOpacity>
-          <Text>Trucks from Fleet</Text>
+          <Text style={styles.header}>Select Drop-Off Site</Text>
           <View style={styles.searchContainer}>
             <TextInput
-              placeholder="Select Trucks from fleet"
+              placeholder="Select Drop-Off Site"
               autoCapitalize="none"
               value={search}
               onChangeText={(text) => handleSearch(text)}
             />
             <Icon name="magnify" size={25} color="#000" />
-          </View>
-          <View style={styles.changeAllItems}>
-            <Field
-              name="chooseAll"
-              type="checkbox"
-              props={{jobs, change}}
-              component={renderMainCheckBox}
-            />
-            <View style={styles.textInfo}>
-              <Text style={{fontSize: 20}}>Use All My Trucks</Text>
-            </View>
           </View>
           {jobs && jobs.length === 0 ? (
             <View style={styles.errorContainer}>
@@ -148,12 +101,13 @@ const MyTrucksModal = (props) => {
               data={searchData}
               renderItem={renderItem}
               keyExtractor={(item) => item.id.toString()}
+              style={styles.modalList}
             />
           )}
           <Buttons
-            backName="clear"
-            nextName="done"
-            onBack={clear}
+            backName="cancel"
+            nextName="continue"
+            onBack={cancel}
             disabled={pristine || submitting}
             onSubmit={handleSubmit(submit)}
           />
@@ -169,19 +123,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalView: {
-    height: 480,
+    height: 450,
     margin: 20,
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 20,
+    padding: 15,
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
+      width: 50,
       height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  modalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+    marginHorizontal: 20,
+  },
+  modalList: {
+    borderTopColor: '#88888824',
+    borderTopWidth: 2,
+    borderBottomColor: '#88888824',
+    borderBottomWidth: 2,
+    marginVertical: 20,
+  },
+  modalItemLabel: {
+    marginLeft: 15,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -194,39 +164,19 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     backgroundColor: '#88888824',
   },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#000',
-    marginVertical: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-  },
-  changeAllItems: {
-    flexDirection: 'row',
-    paddingVertical: 20,
-    paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderColor: '#000',
-  },
-  textInfo: {
-    marginLeft: 15,
-  },
-  closeBtn: {
-    alignItems: 'flex-end',
-    marginBottom: 10,
-  },
   errorContainer: {
     flex: 1,
     textAlign: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  closeBtn: {
+    alignItems: 'flex-end',
+    marginBottom: 10,
+  },
 });
 
 export default reduxForm({
-  form: 'MyTrucksModal',
+  form: 'DropOffModal',
   destroyOnUnmount: false,
-})(MyTrucksModal);
+})(DropOffModal);

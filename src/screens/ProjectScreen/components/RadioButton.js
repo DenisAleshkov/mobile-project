@@ -2,12 +2,10 @@ import React from 'react';
 import {View, TouchableOpacity} from 'react-native';
 
 const RadioButton = ({
-  selectedId,
-  currentId,
   radioPressHandler,
   borderColor,
+  isSelected
 }) => {
-  const isSelected = selectedId === currentId;
   return (
     <View style={radioButtonStyle(isSelected, borderColor)}>
       <TouchableOpacity

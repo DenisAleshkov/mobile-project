@@ -1,23 +1,69 @@
-import React from 'react';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import JobScreen from './src/screens/JobScreen/JobScreen';
 import ProjectScreen from './src/screens/ProjectScreen/ProjectScreen';
+import CreateProject from './src/screens/ProjectScreen/CreateProject';
 import Payload from './src/screens/ProjectScreen/components/Payload/Payload';
 import JobDetails from './src/screens/ProjectScreen/components/JobDetails/JobDetails';
 import JobSites from './src/screens/ProjectScreen/components/JobSites/JobSites';
-import MyTrucks from "./src/screens/ProjectScreen/components/MyTrucks/MyTrucks"
-import {Image} from 'react-native';
+import MyTrucks from './src/screens/ProjectScreen/components/MyTrucks/MyTrucks';
+import Haulers from './src/screens/ProjectScreen/components/Haulers/Haulers';
+import StepperContainer from './src/screens/ProjectScreen/StepperContainer';
+import DropOffModal from './src/screens/ProjectScreen/components/JobSites/components/DropOffModal';
+import PickUpModal from './src/screens/ProjectScreen/components/JobSites/components/PickUpModal';
+import HaulersModal from './src/screens/ProjectScreen/components/Haulers/components/HaulersModal';
+import MyTrucksModal from './src/screens/ProjectScreen/components/MyTrucks/components/MyTrucksModal';
 import {Navigation} from 'react-native-navigation';
 import {Provider} from 'react-redux';
 import store from './store/store';
 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+Navigation.registerComponentWithRedux(
+  'MyTrucksModal',
+  () => MyTrucksModal,
+  Provider,
+  store,
+);
 
+Navigation.registerComponentWithRedux(
+  'HaulersModal',
+  () => HaulersModal,
+  Provider,
+  store,
+);
+
+Navigation.registerComponentWithRedux(
+  'DropOffModal',
+  () => DropOffModal,
+  Provider,
+  store,
+);
+
+Navigation.registerComponentWithRedux(
+  'PickUpModal',
+  () => PickUpModal,
+  Provider,
+  store,
+);
+
+Navigation.registerComponentWithRedux(
+  'CreateProject',
+  () => CreateProject,
+  Provider,
+  store,
+);
+
+Navigation.registerComponentWithRedux(
+  'StepperContainer',
+  () => StepperContainer,
+  Provider,
+  store,
+);
 Navigation.registerComponentWithRedux(
   'Payload',
   () => Payload,
   Provider,
   store,
 );
+
 Navigation.registerComponentWithRedux(
   'MyTrucks',
   () => MyTrucks,
@@ -25,6 +71,12 @@ Navigation.registerComponentWithRedux(
   store,
 );
 
+Navigation.registerComponentWithRedux(
+  'Haulers',
+  () => Haulers,
+  Provider,
+  store,
+);
 
 Navigation.registerComponentWithRedux(
   'JobDetails',
@@ -54,44 +106,41 @@ Navigation.registerComponentWithRedux(
   store,
 );
 
-Navigation.registerComponent('Logo', () => Logo);
-
-const Logo = () => {
-  return (
-    <Image
-      source={require('./src/assets/logo.jpeg')}
-      style={{width: 40, height: 40}}
-    />
-  );
-};
-
 const bottomTabs = (icons) => ({
   id: 'BOTTOM_TABS_LAYOUT',
   children: [
     {
       stack: {
-        id: 'ProjectScreen_TAB',
+        id: 'PROJECT_SCREEN_TAB',
         children: [
           {
             component: {
-              id: 'Project_SCREEN',
-              name: 'ProjectScreen',
+              id: 'HAULERS_SCREEN',
+              name: 'Haulers',
             },
             component: {
-              id: 'JobSites_SCREEN',
+              id: 'MYTRUCKS_SCREEN',
+              name: 'MyTrucks',
+            },
+            component: {
+              id: 'JOBSITES_SCREEN',
               name: 'JobSites',
             },
             component: {
-              id: 'Payload_SCREEN',
-              name: 'Payload',
-            },
-            component: {
-              id: 'JobDetails_SCREEN',
+              id: 'JOBDETAILS_SCREEN',
               name: 'JobDetails',
             },
             component: {
-              id: 'MyTrucks_SCREEN',
-              name: 'MyTrucks',
+              id: 'PAYLOAD_SCREEN',
+              name: 'Payload',
+            },
+            component: {
+              id: 'CREATEPROJECT_SCREEN',
+              name: 'CreateProject',
+            },
+            component: {
+              id: 'PROJECT_SCREEN',
+              name: 'ProjectScreen',
             },
           },
         ],
@@ -103,11 +152,11 @@ const bottomTabs = (icons) => ({
     },
     {
       stack: {
-        id: 'JobScreen_TAB',
+        id: 'JOB_SCREEN_TAB',
         children: [
           {
             component: {
-              id: 'Job_SCREEN',
+              id: 'JOB_SCREEN',
               name: 'JobScreen',
             },
           },
@@ -131,9 +180,7 @@ const JobScreenBottoTabOptions = (icons) => ({
 const JobScreenTopBarOptions = (icons) => ({
   title: {
     alignment: 'center',
-    component: {
-      name: 'Logo',
-    },
+    text: 'Logo',
   },
   rightButtons: [
     {
@@ -158,12 +205,10 @@ const ProjectScreenTopBarOptions = (icons) => ({
     fontSize: 23,
     fontWeight: '300',
   },
-  leftButtons: [
-    {
-      id: 'arrow-left',
-      icon: icons.arrowLeft,
-    },
-  ],
+  backButton: {
+    id: 'arrow-left',
+    icon: icons.arrowLeft,
+  },
   rightButtons: [
     {
       id: 'account-hard-hat',

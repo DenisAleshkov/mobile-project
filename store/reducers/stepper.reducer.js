@@ -1,5 +1,5 @@
 import update from 'immutability-helper';
-import {SET_STEP} from './../constants';
+import {SET_STEP, SET_NEXT_STEP, SET_PREV_STEP} from './../constants';
 
 const initialState = {
   steps: [
@@ -44,13 +44,22 @@ const initialState = {
       label: 'Haulers',
     },
   ],
+  step: 0,
 };
 
 const StepperReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_STEP:
       return update(state, {
-        steps: {$set: action.payload},
+        step: {$set: action.payload},
+      });
+    case SET_NEXT_STEP:
+      return update(state, {
+        step: {$set: action.payload},
+      });
+    case SET_PREV_STEP:
+      return update(state, {
+        step: {$set: action.payload},
       });
     default:
       return state;
